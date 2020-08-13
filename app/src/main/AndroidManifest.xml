@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mycoapplication">
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,6 +10,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="wechat_appid"
+            android:value="wxf91e095d0f920de6" />
+        <meta-data
+            android:name="wechat_secret"
+            android:value="2ade2372586f900e77f8e3d20f96af6e" />
+        <meta-data
+            android:name="wechat_user_name"
+            android:value="gh_26fc36a531a8" />
+        <meta-data
+            android:name="wechat_bypass_approval"
+            android:value="false" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

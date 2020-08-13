@@ -5,7 +5,22 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
-
+    signingConfigs {
+        release {
+            keyAlias 'releasekey'
+            keyPassword 'uneedgame'
+            storeFile file('signture/releasekey.jks')
+            storePassword 'uneedgame'
+            v2SigningEnabled true
+        }
+        debug {
+            keyAlias 'releasekey'
+            keyPassword 'uneedgame'
+            storeFile file('signture/releasekey.jks')
+            storePassword 'uneedgame'
+            v2SigningEnabled true
+        }
+    }
     defaultConfig {
         applicationId "com.uneed.yuni"
         minSdkVersion 21
@@ -18,8 +33,12 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
 

@@ -6,6 +6,22 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    signingConfigs {
+        release {
+            keyAlias 'releasekey'
+            keyPassword 'uneedgame'
+            storeFile file('signture/releasekey.jks')
+            storePassword 'uneedgame'
+            v2SigningEnabled true
+        }
+        debug {
+            keyAlias 'releasekey'
+            keyPassword 'uneedgame'
+            storeFile file('signture/releasekey.jks')
+            storePassword 'uneedgame'
+            v2SigningEnabled true
+        }
+    }
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 29
@@ -19,7 +35,11 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
 }
@@ -29,8 +49,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    testImplementation 'junit:junit:4.12'
+    implementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    /*微信分享*/
+    api 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.6.4'
 
 }
