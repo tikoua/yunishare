@@ -21,6 +21,9 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val text = "分享的文本"
+        val imageUrl = "https://cdn.uneed.com/download/box_string200810.jpg"
+        val videoUrl = "https://cdn.uneed.com/download/box_string200810.jpg"
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         GlobalScope.launch {
@@ -37,15 +40,26 @@ class MainActivity : AppCompatActivity() {
             edt.setText(null)
             tvResult.text = null
         }
-        btShareText.setOnClickListener {
-            testShareText()
+        btWechatFriendText.setOnClickListener {
+            testShareWechatFriendText(text)
         }
-        btShareImage.setOnClickListener {
-            testShareImage()
+        btWechatFriendImage.setOnClickListener {
+            testShareWechatFriendImage(imageUrl)
         }
-        btShareVideo.setOnClickListener {
-            testShareVideo()
+        btWechatFriendVideo.setOnClickListener {
+            testShareWechatFriendVideo()
         }
+
+        btWechatMomentText.setOnClickListener {
+            testShareWechatMomentText(text)
+        }
+        btWechatMomentImage.setOnClickListener {
+            testShareWechatMomentImage(imageUrl)
+        }
+        btWechatMomentVideo.setOnClickListener {
+            testShareWechatMomentVideo()
+        }
+
         YuniShare.init(this)
     }
 
@@ -58,19 +72,19 @@ class MainActivity : AppCompatActivity() {
         tvResult.setText(fileExtensionFromUrl)
     }
 
-    private fun testShareText() {
+    private fun testShareWechatFriendText(text: String) {
         YuniShare.share(
             this,
             ShareChannel.WechatFriend,
-            InnerShareParams.buildWechatText().text("分享文本").build()
+            InnerShareParams.buildWechatText().text(text).build()
         )
     }
 
-    private fun testShareImage() {
+    private fun testShareWechatFriendImage(imageUrl: String) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 log("testShareImage 1")
-                val imagePath = getImagePath()
+                val imagePath = getImagePath(imageUrl)
 
                 log("testShareImage 2  imagePath: $imagePath")
                 if (imagePath.isNullOrEmpty()) {
@@ -88,7 +102,41 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun getImagePath(): String? {
+    private fun testShareWechatMomentText(text: String) {
+        YuniShare.share(
+            this,
+            ShareChannel.WechatMoment,
+            InnerShareParams.buildWechatText().text(text).build()
+        )
+    }
+
+    private fun testShareWechatMomentImage(imageUrl: String) {
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                log("testShareImage 1")
+                val imagePath = getImagePath(imageUrl)
+
+                log("testShareImage 2  imagePath: $imagePath")
+                if (imagePath.isNullOrEmpty()) {
+                    return@launch
+                }
+                log("imagePath: $imagePath")
+                YuniShare.share(
+                    this@MainActivity,
+                    ShareChannel.WechatMoment,
+                    InnerShareParams.buildWechatImage().title("分享图片").imagePath(imagePath).build()
+                )
+            } catch (error: Throwable) {
+                error.printStackTrace()
+            }
+        }
+    }
+
+    private fun testShareWechatMomentVideo() {
+
+    }
+
+    private suspend fun getImagePath(imageUrl: String): String? {
         log("getImagePath 1")
         val path = "svae/test/textimg.jpg"
         val externalFilesDir = getExternalFilesDir(DIRECTORY_PICTURES)
@@ -98,9 +146,8 @@ class MainActivity : AppCompatActivity() {
 
             return file.absolutePath
         }
-        val url = "https://cdn.uneed.com/download/box_string200810.jpg"
         log("getImagePath 3")
-        return downloadFile(file.absolutePath, url)
+        return downloadFile(file.absolutePath, imageUrl)
     }
 
     private suspend fun downloadFile(path: String, url: String): String? {
@@ -109,7 +156,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun testShareVideo() {
+    private fun testShareWechatFriendVideo() {
         YuniShare.share(
             this,
             ShareChannel.WechatFriend,

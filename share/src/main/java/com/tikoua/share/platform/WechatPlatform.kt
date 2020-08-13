@@ -144,14 +144,7 @@ class WechatPlatform : Platform {
         req.message = msg
         return req
     }
-
-    /**
-     * 分享到微信朋友圈
-     */
-    private fun shareToMoment(activity: Activity, shareParams: InnerShareParams) {
-
-    }
-
+    
     /**
      * 创建唯一的事务标志
      */
