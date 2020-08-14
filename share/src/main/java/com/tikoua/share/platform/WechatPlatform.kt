@@ -110,6 +110,15 @@ class WechatPlatform : Platform {
                         }
                     }
                 }
+                /* ShareType.WechatMiniProgram -> {
+                     getShareMiniProgramReq(activity, shareParams)?.apply {
+                         if (type == ShareChannel.WechatFriend) {
+                             this.scene = SendMessageToWX.Req.WXSceneSession
+                         } else if (type == ShareChannel.WechatMoment) {
+                             this.scene = SendMessageToWX.Req.WXSceneTimeline
+                         }
+                     }
+                 }*/
                 else -> null
             }
                 ?: return ShareResult(ShareEc.PlatformUnSupport)
@@ -245,6 +254,29 @@ class WechatPlatform : Platform {
     }
 
     /**
+     * 生成小程序分享的req
+     */
+    private fun getShareMiniProgramReq(
+        activity: Activity,
+        shareParams: InnerShareParams
+    ): SendMessageToWX.Req? {
+        val pageUrl = shareParams.miniProgramWebPageUrl
+        if (pageUrl.isNullOrEmpty()) {
+            throw Exception("pageUrl can not be null")
+        }
+        val imgObj = WXVideoObject()
+        imgObj.videoUrl = pageUrl
+        val msg = WXMediaMessage()
+        msg.mediaObject = imgObj
+        msg.description = shareParams.desc
+        msg.title = shareParams.title
+        val req = SendMessageToWX.Req()
+        req.transaction = buildTransaction()
+        req.message = msg
+        return req
+    }
+
+    /**
      * 创建唯一的事务标志
      */
     private fun buildTransaction(): String {
@@ -276,6 +308,20 @@ class WechatPlatform : Platform {
         if (BuildConfig.DEBUG) {
             Log.d(javaClass.simpleName, "$msg")
         }
+    }
+
+    private fun tt() {
+        /*Platform plat = matchPlatform(platform);
+            Platform.ShareParams params = new Platform.ShareParams();
+            params.setShareType(Platform.SHARE_WXMINIPROGRAM);
+            params.setWxPath("pages/index/main?uid=" + uid + "&key=" + miniProgramParams.getShareKey());
+            params.setText(mContext.getString(R.string.yn_share_text_message,RouterServicesInShare.INSTANCE.getAppName(mContext)));
+            params.setTitle(miniProgramParams.getTitle());
+            params.setUrl(String.format("https://%s/index.html", RouterServicesInShare.INSTANCE.getAppEnv().getWebHost()));
+            params.setImageUrl(miniProgramParams.getShareCover());
+            params.setWxMiniProgramType(WXMiniProgramObject.MINIPTOGRAM_TYPE_RELEASE);
+            plat.setPlatformActionListener(new MobPlatformActionListener(platform, callback));
+            plat.share(params);*/
     }
 
     /**

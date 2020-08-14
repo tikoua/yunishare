@@ -6,6 +6,9 @@ import com.tikoua.share.model.InnerShareParams
 import com.tikoua.share.model.ShareChannel
 import com.tikoua.share.model.ShareEc
 import com.tikoua.share.model.ShareResult
+import com.tikoua.share.platform.FacebookPlatform
+import com.tikoua.share.platform.QQPlatform
+import com.tikoua.share.platform.TwitterPlatform
 import com.tikoua.share.platform.WechatPlatform
 
 /**
@@ -13,7 +16,15 @@ import com.tikoua.share.platform.WechatPlatform
  *   on 2020/8/11 11:06 AM
  */
 object YuniShare {
-    private val platforms by lazy { listOf(WechatPlatform()) }
+    private val platforms by lazy {
+        listOf(
+            WechatPlatform(),
+            QQPlatform(),
+            FacebookPlatform(),
+            TwitterPlatform()
+        )
+    }
+
     fun init(context: Context) {
         platforms.forEach {
             it.init(context.applicationContext)

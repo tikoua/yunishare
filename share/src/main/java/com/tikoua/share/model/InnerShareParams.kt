@@ -33,7 +33,11 @@ class InnerShareParams {
     internal var desc: String? = null
     internal var videoUrl: String? = null
     internal var videoLowBandUrl: String? = null
-    internal var videoFilePath: String? = null
+    internal var miniProgramWebPageUrl: String? = null
+    internal var miniProgramUserName: String? = null
+    internal var miniProgramPath: String? = null
+    internal var miniProgramWithShareTicket: Boolean? = null
+    internal var miniProgramType: Int? = null
 
     internal var IMAGE_FILE_PROVIDER_PATH = "image_provider_path"
     internal var FILE_PATH = "filePath"
