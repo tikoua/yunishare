@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import com.tikoua.share.model.InnerShareParams
 import com.tikoua.share.model.ShareChannel
+import com.tikoua.share.model.ShareResult
 
 /**
  *   created by dcl
@@ -23,5 +24,9 @@ interface Platform {
     /**
      * 分享
      */
-    fun share(activity: Activity, type: ShareChannel, shareParams: InnerShareParams)
+    suspend fun share(
+        activity: Activity,
+        type: ShareChannel,
+        shareParams: InnerShareParams
+    ): ShareResult
 }

@@ -5,54 +5,86 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Toast
+import com.tencent.mm.opensdk.constants.Build
 import com.tencent.mm.opensdk.constants.ConstantsAPI
+import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
 import com.tencent.mm.opensdk.modelmsg.WXImageObject
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage
 import com.tencent.mm.opensdk.modelmsg.WXTextObject
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
-import com.tikoua.share.R
-import com.tikoua.share.model.InnerShareParams
-import com.tikoua.share.model.ShareChannel
-import com.tikoua.share.model.ShareType
+import com.tikoua.share.model.*
 import com.tikoua.share.utils.Util
+import com.tikoua.share.wechat.WXConst
 import com.tikoua.share.wechat.WechatShareMeta
+import com.tikoua.share.wechat.getWechatMeta
+import com.uneed.yuni.BuildConfig
+import com.uneed.yuni.R
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 
 /**
  *   created by dcl
  *   on 2020/8/13 10:46 AM
+ *   api.registerApp: 未安装app时返回false
  */
 class WechatPlatform : Platform {
     private var meta: WechatShareMeta? = null
     private var api: IWXAPI? = null
     private val thumbSize = 150
-
+    private var shareEc: Int? = null
     override fun init(context: Context) {
         val api = getApi(context)
         val meta = getMeta(context)
-        api.registerApp(meta.appid)
+        val registerApp = api.registerApp(meta.appid)
+        log("registerApp: $registerApp")
+        //建议动态监听微信启动广播进行注册到微信
         context.registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 log(intent?.dataString)
+                val registerAppAgain = api.registerApp(meta.appid)
+                log("registerAppAgain: $registerAppAgain")
             }
-
         }, IntentFilter(ConstantsAPI.ACTION_REFRESH_WXAPP))
+        context.registerReceiver(object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                log(intent?.dataString)
+                intent?.let {
+                    val errCode = it.getIntExtra("ec", 0)
+                    log("errCode: $errCode")
+                    shareEc = errCode
+                }
+
+            }
+        }, IntentFilter(WXConst.ActionWXResp))
     }
 
     override fun support(type: ShareChannel): Boolean {
         return type == ShareChannel.WechatFriend || type == ShareChannel.WechatMoment
     }
 
-    override fun share(activity: Activity, type: ShareChannel, shareParams: InnerShareParams) {
-        val req: SendMessageToWX.Req? =
+    override suspend fun share(
+        activity: Activity,
+        type: ShareChannel,
+        shareParams: InnerShareParams
+    ): ShareResult {
+        val wxAppSupportAPI = getApi(activity).wxAppSupportAPI
+        if (wxAppSupportAPI == 0) {
+            return ShareResult(ShareEc.NotInstall)
+        }
+        val checkVersion = checkVersion(activity, type)
+        if (!checkVersion) {
+            return ShareResult(ShareEc.PlatformUnSupport)
+        }
+        val req: SendMessageToWX.Req =
             when (shareParams.type) {
                 ShareType.Text.type -> {
                     getShareTextReq(activity, shareParams).apply {
@@ -83,11 +115,55 @@ class WechatPlatform : Platform {
                 }
                 else -> null
             }
-        req?.let {
-            getApi(activity).sendReq(req)
-        }
+                ?: return ShareResult(ShareEc.PlatformUnSupport)
+        shareEc = null
+        val hashCode = activity.hashCode()
+        activity.application.registerActivityLifecycleCallbacks(object :
+            ActivityLifecycleCallback() {
+            override fun onActivityResumed(activity: Activity) {
+                if (hashCode == activity.hashCode()) {
+                    activity.application.unregisterActivityLifecycleCallbacks(this)
+                    GlobalScope.launch {
+                        delay(1000)
+                        if (shareEc == null) {
+                            shareEc = BaseResp.ErrCode.ERR_USER_CANCEL
+                        }
+                    }
 
+                }
+            }
+        })
+        getApi(activity).sendReq(req)
+        var resultEc = 0
+        while (true) {
+            val result = shareEc
+            if (result != null) {
+                resultEc = result
+                break
+            }
+            log("wait ...")
+            delay(300)
+        }
+        val ec = when (resultEc) {
+            BaseResp.ErrCode.ERR_OK -> {
+                ShareEc.Success
+            }
+            BaseResp.ErrCode.ERR_USER_CANCEL -> {
+                ShareEc.Cancel
+            }
+            BaseResp.ErrCode.ERR_AUTH_DENIED -> {
+                ShareEc.AuthDenied
+            }
+            BaseResp.ErrCode.ERR_UNSUPPORT -> {
+                ShareEc.PlatformUnSupport
+            }
+            else -> {
+                ShareEc.Unknown
+            }
+        }
+        return ShareResult(ec)
     }
+
 
     /**
      * 分享到微信好友
@@ -144,7 +220,7 @@ class WechatPlatform : Platform {
         req.message = msg
         return req
     }
-    
+
     /**
      * 创建唯一的事务标志
      */
@@ -168,23 +244,25 @@ class WechatPlatform : Platform {
         if (meta != null) {
             return meta
         }
-        val appInfo = context.packageManager.getApplicationInfo(
-            context.packageName,
-            PackageManager.GET_META_DATA
-        )
-        val metaData = appInfo.metaData
-        val appid = metaData.getString("wechat_appid")
-        val appSecret = metaData.getString("wechat_secret")
-        val userName = metaData.getString("wechat_user_name")
-        if (appid.isNullOrEmpty() || appSecret.isNullOrEmpty()) {
-            throw Exception("appid or appSecret is null")
-        }
-        meta = WechatShareMeta(appid, appSecret)
+        meta = context.getWechatMeta()
         this.meta = meta
         return meta
     }
 
     private fun log(msg: String?) {
-        Log.d(javaClass.simpleName, "log msg: $msg")
+        if (BuildConfig.DEBUG) {
+            Log.d(javaClass.simpleName, "$msg")
+        }
     }
+
+    /**
+     * 检查第三方的应用版本是否支持对应的分享方式
+     */
+    private fun checkVersion(context: Context, type: ShareChannel): Boolean {
+        if (type == ShareChannel.WechatMoment) {
+            return getApi(context).wxAppSupportAPI >= Build.TIMELINE_SUPPORTED_SDK_INT
+        }
+        return true
+    }
+
 }

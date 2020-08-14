@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import com.tikoua.share.model.InnerShareParams
 import com.tikoua.share.model.ShareChannel
+import com.tikoua.share.model.ShareEc
+import com.tikoua.share.model.ShareResult
 import com.tikoua.share.platform.WechatPlatform
 
 /**
@@ -18,9 +20,15 @@ object YuniShare {
         }
     }
 
-    fun share(activity: Activity, type: ShareChannel, shareParams: InnerShareParams) {
-        val platform = platforms.firstOrNull { it.support(type) }
-        platform?.share(activity, type, shareParams)
+    suspend fun share(
+        activity: Activity,
+        type: ShareChannel,
+        shareParams: InnerShareParams
+    ): ShareResult {
+        val platform =
+            platforms.firstOrNull { it.support(type) }
+                ?: return ShareResult(ShareEc.Unsupported)
+        return platform.share(activity, type, shareParams)
     }
 }
 
