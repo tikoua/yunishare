@@ -177,6 +177,20 @@ class MainActivity : AppCompatActivity() {
         return if (download) path else null
     }
 
+    private suspend fun getVideoPath(imageUrl: String): String? {
+        log("getImagePath 1")
+        val path = "svae/test/testvideo.mp4"
+        val externalFilesDir = getExternalFilesDir(DIRECTORY_PICTURES)
+        val file = File(externalFilesDir, path)
+        if (file.exists() && file.isFile) {
+            log("getImagePath 2")
+
+            return file.absolutePath
+        }
+        log("getImagePath 3")
+        return downloadFile(file.absolutePath, imageUrl)
+    }
+
 
     private suspend fun testShareWechatFriendVideo(videoUrl: String) {
         log("testShareWechatFriendVideo: $videoUrl")
