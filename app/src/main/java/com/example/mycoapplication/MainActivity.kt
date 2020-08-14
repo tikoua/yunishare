@@ -23,7 +23,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val text = "分享的文本"
         val imageUrl = "https://cdn.uneed.com/download/box_string200810.jpg"
-        val videoUrl = "https://cdn.uneed.com/download/box_string200810.jpg"
+        val videoUrl =
+            "https://cdn.uneed.com/download/0bf2oeaaiaaa4yaob6igj5pva4odaryqabaa.f10003.mp4"
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         GlobalScope.launch {
@@ -51,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         }
         btWechatFriendVideo.setOnClickListener {
             GlobalScope.launch {
-                testShareWechatFriendVideo()
+                testShareWechatFriendVideo(videoUrl)
             }
         }
 
@@ -94,26 +95,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun testShareWechatFriendImage(imageUrl: String) {
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
-                log("testShareImage 1")
-                val imagePath = getImagePath(imageUrl)
+        log("testShareImage 1")
+        val imagePath = getImagePath(imageUrl)
 
-                log("testShareImage 2  imagePath: $imagePath")
-                if (imagePath.isNullOrEmpty()) {
-                    return@launch
-                }
-                log("imagePath: $imagePath")
-                YuniShare.share(
-                    this@MainActivity,
-                    ShareChannel.WechatFriend,
-                    InnerShareParams.buildWechatImage().title("分享图片").imagePath(imagePath).build()
-                ).apply {
-                    log("share result: $this")
-                }
-            } catch (error: Throwable) {
-                error.printStackTrace()
-            }
+        log("testShareImage 2  imagePath: $imagePath")
+        if (imagePath.isNullOrEmpty()) {
+            return
+        }
+        log("imagePath: $imagePath")
+        YuniShare.share(
+            this@MainActivity,
+            ShareChannel.WechatFriend,
+            InnerShareParams.buildWechatImage().title("分享图片").imagePath(imagePath).build()
+        ).apply {
+            log("share result: $this")
         }
     }
 
@@ -175,11 +170,13 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private suspend fun testShareWechatFriendVideo() {
+    private suspend fun testShareWechatFriendVideo(videoUrl: String) {
+        log("testShareWechatFriendVideo: $videoUrl")
         YuniShare.share(
-            this,
+            this@MainActivity,
             ShareChannel.WechatFriend,
-            InnerShareParams.buildWechatText().text("分享文本").build()
+            InnerShareParams.buildWechatVideo().videoUrl(videoUrl).title("标题: 与你分享来的视频")
+                .desc("描述: 狗咬狗哈哈哈").build()
         ).apply {
             log("share result: $this")
         }

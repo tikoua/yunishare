@@ -2,6 +2,7 @@ package com.tikoua.share.model
 
 import com.tikoua.share.wechat.WechatImageBuilder
 import com.tikoua.share.wechat.WechatTextBuilder
+import com.tikoua.share.wechat.WechatVideoBuilder
 
 /**
  *   created by dcl
@@ -16,6 +17,10 @@ class InnerShareParams {
         fun buildWechatImage(): WechatImageBuilder {
             return WechatImageBuilder()
         }
+
+        fun buildWechatVideo(): WechatVideoBuilder {
+            return WechatVideoBuilder()
+        }
     }
 
     /**
@@ -24,9 +29,14 @@ class InnerShareParams {
     internal var type: Int = 0
     internal var text: String? = null
     internal var imagePath: String? = null
+    internal var title: String? = null
+    internal var desc: String? = null
+    internal var videoUrl: String? = null
+    internal var videoLowBandUrl: String? = null
+    internal var videoFilePath: String? = null
+
     internal var IMAGE_FILE_PROVIDER_PATH = "image_provider_path"
     internal var FILE_PATH = "filePath"
-    internal var title: String? = null
     internal var NOTEBOOK = "notebook"
     internal var STACK = "stack"
     internal var TAGS = "tags"

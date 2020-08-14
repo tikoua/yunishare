@@ -12,10 +12,7 @@ import android.widget.Toast
 import com.tencent.mm.opensdk.constants.Build
 import com.tencent.mm.opensdk.constants.ConstantsAPI
 import com.tencent.mm.opensdk.modelbase.BaseResp
-import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
-import com.tencent.mm.opensdk.modelmsg.WXImageObject
-import com.tencent.mm.opensdk.modelmsg.WXMediaMessage
-import com.tencent.mm.opensdk.modelmsg.WXTextObject
+import com.tencent.mm.opensdk.modelmsg.*
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import com.tikoua.share.model.*
@@ -105,7 +102,7 @@ class WechatPlatform : Platform {
                     }
                 }
                 ShareType.Video.type -> {
-                    getShareTextReq(activity, shareParams).apply {
+                    getShareVideoReq(activity, shareParams)?.apply {
                         if (type == ShareChannel.WechatFriend) {
                             this.scene = SendMessageToWX.Req.WXSceneSession
                         } else if (type == ShareChannel.WechatMoment) {
@@ -166,7 +163,7 @@ class WechatPlatform : Platform {
 
 
     /**
-     * 分享到微信好友
+     * 生成文本分享的req
      */
     private fun getShareTextReq(
         context: Context,
@@ -184,6 +181,9 @@ class WechatPlatform : Platform {
         return req
     }
 
+    /**
+     * 生成图片分享的req
+     */
     private fun getShareImageReq(
         context: Context,
         shareParams: InnerShareParams
@@ -215,6 +215,29 @@ class WechatPlatform : Platform {
         )
         bmp.recycle()
         msg.thumbData = Util.bmpToByteArray(thumbBmp, true)
+        val req = SendMessageToWX.Req()
+        req.transaction = buildTransaction()
+        req.message = msg
+        return req
+    }
+
+    /**
+     * 生成视频分享的req
+     */
+    private fun getShareVideoReq(
+        context: Context,
+        shareParams: InnerShareParams
+    ): SendMessageToWX.Req? {
+        val videoUrl = shareParams.videoUrl
+        if (videoUrl.isNullOrEmpty()) {
+            throw Exception("path can not be null")
+        }
+        val imgObj = WXVideoObject()
+        imgObj.videoUrl = videoUrl
+        val msg = WXMediaMessage()
+        msg.mediaObject = imgObj
+        msg.description = shareParams.desc
+        msg.title = shareParams.title
         val req = SendMessageToWX.Req()
         req.transaction = buildTransaction()
         req.message = msg
