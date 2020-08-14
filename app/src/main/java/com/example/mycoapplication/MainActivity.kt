@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         }
         btWechatMomentVideo.setOnClickListener {
             GlobalScope.launch {
-                testShareWechatMomentVideo()
+                testShareWechatMomentVideo(videoUrl)
             }
         }
 
@@ -146,8 +146,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun testShareWechatMomentVideo() {
-
+    private suspend fun testShareWechatMomentVideo(videoUrl: String) {
+        log("testShareWechatFriendVideo: $videoUrl")
+        YuniShare.share(
+            this@MainActivity,
+            ShareChannel.WechatMoment,
+            InnerShareParams.buildWechatVideo().videoUrl(videoUrl).title("标题: 与你分享来的视频")
+                .desc("描述: 狗咬狗哈哈哈").build()
+        ).apply {
+            log("share result: $this")
+        }
     }
 
     private suspend fun getImagePath(imageUrl: String): String? {
