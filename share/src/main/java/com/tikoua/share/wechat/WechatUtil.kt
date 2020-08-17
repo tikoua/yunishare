@@ -2,12 +2,13 @@ package com.tikoua.share.wechat
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.tikoua.share.qq.QQShareMeta
 
 /**
  *   created by dcl
  *   on 2020/8/14 4:35 PM
  */
-fun Context.getWechatMeta(): WechatShareMeta {
+fun Context.loadWechatMeta(): WechatShareMeta {
     val appInfo = this.packageManager.getApplicationInfo(
         this.packageName,
         PackageManager.GET_META_DATA

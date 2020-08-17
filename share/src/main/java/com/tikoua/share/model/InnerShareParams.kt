@@ -1,5 +1,7 @@
 package com.tikoua.share.model
 
+import com.tikoua.share.qq.QQImageBuilder
+import com.tikoua.share.qq.QQTextBuilder
 import com.tikoua.share.wechat.WechatImageBuilder
 import com.tikoua.share.wechat.WechatMiniProgramBuilder
 import com.tikoua.share.wechat.WechatTextBuilder
@@ -26,6 +28,14 @@ class InnerShareParams {
         fun buildMiniProgram(): WechatMiniProgramBuilder {
             return WechatMiniProgramBuilder()
         }
+
+        fun buildQQText(): QQTextBuilder {
+            return QQTextBuilder()
+        }
+
+        fun buildQQImage(): QQImageBuilder {
+            return QQImageBuilder()
+        }
     }
 
     /**
@@ -34,6 +44,7 @@ class InnerShareParams {
     internal var type: Int = 0
     internal var text: String? = null
     internal var imagePath: String? = null
+    internal var imageUrl: String? = null
     internal var title: String? = null
     internal var desc: String? = null
     internal var videoUrl: String? = null
@@ -44,6 +55,12 @@ class InnerShareParams {
     internal var miniProgramWithShareTicket: Boolean = true
     internal var miniProgramType: Int? = null
     internal var thumbData: ByteArray? = null
+    internal var appName: String? = null
+
+    /**
+     * 点击后跳转的url
+     */
+    internal var targetUrl: String? = null
 
     internal var IMAGE_FILE_PROVIDER_PATH = "image_provider_path"
     internal var FILE_PATH = "filePath"

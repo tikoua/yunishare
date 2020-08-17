@@ -81,32 +81,32 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textSize="8sp"
-                android:text="微信好友文字" />
+                android:text="微信好友文字"
+                android:textSize="8sp" />
 
             <Button
                 android:id="@+id/btWechatFriendImage"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textSize="8sp"
-                android:text="微信好友图片" />
+                android:text="微信好友图片"
+                android:textSize="8sp" />
 
             <Button
                 android:id="@+id/btWechatFriendVideo"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textSize="8sp"
-                android:text="微信好友视频" />
+                android:text="微信好友视频"
+                android:textSize="8sp" />
 
             <Button
                 android:id="@+id/btWechatFriendMiniProgram"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textSize="8sp"
-                android:text="微信好友小程序" />
+                android:text="微信好友小程序"
+                android:textSize="8sp" />
 
         </LinearLayout>
 
@@ -123,24 +123,24 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textSize="8sp"
-                android:text="朋友圈文字" />
+                android:text="朋友圈文字"
+                android:textSize="8sp" />
 
             <Button
                 android:id="@+id/btWechatMomentImage"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textSize="8sp"
-                android:text="朋友圈图片" />
+                android:text="朋友圈图片"
+                android:textSize="8sp" />
 
             <Button
                 android:id="@+id/btWechatMomentVideo"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textSize="8sp"
-                android:text="朋友圈视频" />
+                android:text="朋友圈视频"
+                android:textSize="8sp" />
 
             <Button
                 android:id="@+id/btWechatMomentMiniProgram"
@@ -149,6 +149,49 @@
                 android:layout_weight="1"
                 android:text="微信朋友圈小程序"
                 android:textSize="8sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btClear">
+
+            <Button
+                android:id="@+id/btQQText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="QQ文字"
+                android:textSize="8sp" />
+
+            <Button
+                android:id="@+id/btQQLocalImage"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="QQ本地图片"
+                android:textSize="8sp" />
+
+            <Button
+                android:id="@+id/btQQRemoteImage"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="QQ远程图片"
+                android:textSize="8sp" />
+
+            <Button
+                android:id="@+id/btQQVideo"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="QQ视频"
+                android:textSize="8sp" />
+
+
         </LinearLayout>
     </LinearLayout>
 

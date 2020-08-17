@@ -20,7 +20,7 @@ class FacebookPlatform : Platform {
     }
     override suspend fun share(
         activity: Activity,
-        type: ShareChannel,
+        shareChannel: ShareChannel,
         shareParams: InnerShareParams
     ): ShareResult {
         TODO("Not yet implemented")

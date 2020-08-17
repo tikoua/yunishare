@@ -19,7 +19,7 @@ import com.tikoua.share.model.*
 import com.tikoua.share.utils.Util
 import com.tikoua.share.wechat.WXConst
 import com.tikoua.share.wechat.WechatShareMeta
-import com.tikoua.share.wechat.getWechatMeta
+import com.tikoua.share.wechat.loadWechatMeta
 import com.uneed.yuni.BuildConfig
 import com.uneed.yuni.R
 import kotlinx.coroutines.GlobalScope
@@ -70,14 +70,14 @@ class WechatPlatform : Platform {
 
     override suspend fun share(
         activity: Activity,
-        type: ShareChannel,
+        shareChannel: ShareChannel,
         shareParams: InnerShareParams
     ): ShareResult {
         val wxAppSupportAPI = getApi(activity).wxAppSupportAPI
         if (wxAppSupportAPI == 0) {
             return ShareResult(ShareEc.NotInstall)
         }
-        val checkVersion = checkVersion(activity, type)
+        val checkVersion = checkVersion(activity, shareChannel)
         if (!checkVersion) {
             return ShareResult(ShareEc.PlatformUnSupport)
         }
@@ -86,33 +86,33 @@ class WechatPlatform : Platform {
             when (shareParams.type) {
                 ShareType.Text.type -> {
                     getShareTextReq(activity, shareParams).apply {
-                        if (type == ShareChannel.WechatFriend) {
+                        if (shareChannel == ShareChannel.WechatFriend) {
                             this.scene = SendMessageToWX.Req.WXSceneSession
-                        } else if (type == ShareChannel.WechatMoment) {
+                        } else if (shareChannel == ShareChannel.WechatMoment) {
                             this.scene = SendMessageToWX.Req.WXSceneTimeline
                         }
                     }
                 }
                 ShareType.Image.type -> {
                     getShareImageReq(activity, shareParams)?.apply {
-                        if (type == ShareChannel.WechatFriend) {
+                        if (shareChannel == ShareChannel.WechatFriend) {
                             this.scene = SendMessageToWX.Req.WXSceneSession
-                        } else if (type == ShareChannel.WechatMoment) {
+                        } else if (shareChannel == ShareChannel.WechatMoment) {
                             this.scene = SendMessageToWX.Req.WXSceneTimeline
                         }
                     }
                 }
                 ShareType.Video.type -> {
                     getShareVideoReq(activity, shareParams)?.apply {
-                        if (type == ShareChannel.WechatFriend) {
+                        if (shareChannel == ShareChannel.WechatFriend) {
                             this.scene = SendMessageToWX.Req.WXSceneSession
-                        } else if (type == ShareChannel.WechatMoment) {
+                        } else if (shareChannel == ShareChannel.WechatMoment) {
                             this.scene = SendMessageToWX.Req.WXSceneTimeline
                         }
                     }
                 }
                 ShareType.WechatMiniProgram.type -> {
-                    if (type == ShareChannel.WechatFriend) {
+                    if (shareChannel == ShareChannel.WechatFriend) {
                         getShareMiniProgramReq(activity, shareParams)?.apply {
                             this.scene = SendMessageToWX.Req.WXSceneSession
                         }
@@ -311,7 +311,7 @@ class WechatPlatform : Platform {
         if (meta != null) {
             return meta
         }
-        meta = context.getWechatMeta()
+        meta = context.loadWechatMeta()
         this.meta = meta
         return meta
     }

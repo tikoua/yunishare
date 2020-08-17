@@ -9,7 +9,7 @@ import com.tikoua.share.YuniShare
 import com.tikoua.share.model.InnerShareParams
 import com.tikoua.share.model.ShareChannel
 import com.tikoua.share.utils.log
-import com.tikoua.share.wechat.getWechatMeta
+import com.tikoua.share.wechat.loadWechatMeta
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -80,6 +80,26 @@ class MainActivity : AppCompatActivity() {
         btWechatMomentMiniProgram.setOnClickListener {
             GlobalScope.launch {
                 testShareWechatMomentMiniProgram(pageUrl, path, title, miniCover)
+            }
+        }
+        btQQText.setOnClickListener {
+            GlobalScope.launch {
+                testShareQQText(text)
+            }
+        }
+        btQQLocalImage.setOnClickListener {
+            GlobalScope.launch {
+                testShareQQImage(imageUrl)
+            }
+        }
+        btQQRemoteImage.setOnClickListener {
+            GlobalScope.launch {
+                testShareQQRemoteImage(imageUrl)
+            }
+        }
+        btQQVideo.setOnClickListener {
+            GlobalScope.launch {
+                testShareQQRemoteVideo(videoUrl)
             }
         }
 
@@ -160,7 +180,7 @@ class MainActivity : AppCompatActivity() {
                 .path(path)
                 .webPageUrl(pageUrl)
                 .thumbData(thumb)
-                .userName(getWechatMeta().userName)
+                .userName(loadWechatMeta().userName)
                 .title("小程序标题")
                 .build()
         ).apply {
@@ -240,11 +260,83 @@ class MainActivity : AppCompatActivity() {
                 .path(path)
                 .webPageUrl(pageUrl)
                 .thumbData(thumb)
-                .userName(getWechatMeta().userName)
+                .userName(loadWechatMeta().userName)
                 .title(title)
                 .build()
         ).apply {
             log("share result: $this")
+        }
+
+    }
+
+    private suspend fun testShareQQText(text: String) {
+        YuniShare.share(
+            this,
+            ShareChannel.QQFriend,
+            InnerShareParams.buildQQText().text(text)
+                .targetUrl("https://www.baidu.com").build()
+        ).apply {
+            log("share result: $this")
+        }
+    }
+
+    private suspend fun testShareQQImage(imageUrl: String) {
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                log("testShareImage 1")
+                val imagePath = getFilePath("save/img/hahha.jpg", imageUrl)
+
+                log("testShareImage 2  imagePath: $imagePath")
+                if (imagePath.isNullOrEmpty()) {
+                    return@launch
+                }
+                log("imagePath: $imagePath")
+                YuniShare.share(
+                    this@MainActivity,
+                    ShareChannel.QQFriend,
+                    InnerShareParams.buildQQImage().imagePath(imagePath).build()
+                ).apply {
+                    log("share result: $this")
+                }
+            } catch (error: Throwable) {
+                error.printStackTrace()
+            }
+        }
+    }
+
+    private suspend fun testShareQQRemoteImage(imageUrl: String) {
+        YuniShare.share(
+            this@MainActivity,
+            ShareChannel.QQFriend,
+            InnerShareParams.buildQQImage().imageUrl(imageUrl).title("图片标题").desc("图片描述")
+                .appName("与你").build()
+        ).apply {
+            log("share result: $this")
+        }
+    }
+
+    private suspend fun testShareQQRemoteVideo(imageUrl: String) {
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                log("testShareQQRemoteVideo 1")
+                val imagePath = getFilePath("save/img/hahha.mp4", imageUrl)
+
+                log("testShareQQRemoteVideo 2  imagePath: $imagePath")
+                if (imagePath.isNullOrEmpty()) {
+                    return@launch
+                }
+                log("testShareQQRemoteVideo: $imagePath")
+                YuniShare.share(
+                    this@MainActivity,
+                    ShareChannel.QQFriend,
+                    InnerShareParams.buildQQImage().imagePath(imagePath)
+                        .appName("与你").build()
+                ).apply {
+                    log("share result: $this")
+                }
+            } catch (error: Throwable) {
+                error.printStackTrace()
+            }
         }
 
     }

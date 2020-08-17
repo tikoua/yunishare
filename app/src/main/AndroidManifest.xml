@@ -10,6 +10,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
         <meta-data
             android:name="wechat_appid"
             android:value="wxf91e095d0f920de6" />
@@ -22,6 +26,13 @@
         <meta-data
             android:name="wechat_bypass_approval"
             android:value="false" />
+        <meta-data
+            android:name="qq_appid"
+            android:value="1106523076" />
+        <meta-data
+            android:name="qq_app_key"
+            android:value="KEYGQ671M0Bm1mOJzpD" />
+
 
         <activity android:name=".MainActivity">
             <intent-filter>

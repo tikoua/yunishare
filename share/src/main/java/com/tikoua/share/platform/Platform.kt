@@ -26,7 +26,7 @@ interface Platform {
      */
     suspend fun share(
         activity: Activity,
-        type: ShareChannel,
+        shareChannel: ShareChannel,
         shareParams: InnerShareParams
     ): ShareResult
 }

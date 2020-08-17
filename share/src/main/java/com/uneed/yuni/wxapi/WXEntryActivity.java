@@ -65,7 +65,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("MyHandler", "onCreate");
-        WechatShareMeta wechatMeta = WechatUtilKt.getWechatMeta(this);
+        WechatShareMeta wechatMeta = WechatUtilKt.loadWechatMeta(this);
         api = WXAPIFactory.createWXAPI(this, wechatMeta.getAppid(), false);
         handler = new MyHandler(this);
 
