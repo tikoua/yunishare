@@ -81,6 +81,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:textSize="8sp"
                 android:text="微信好友文字" />
 
             <Button
@@ -88,6 +89,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:textSize="8sp"
                 android:text="微信好友图片" />
 
             <Button
@@ -95,7 +97,16 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:textSize="8sp"
                 android:text="微信好友视频" />
+
+            <Button
+                android:id="@+id/btWechatFriendMiniProgram"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:textSize="8sp"
+                android:text="微信好友小程序" />
 
         </LinearLayout>
 
@@ -112,6 +123,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:textSize="8sp"
                 android:text="朋友圈文字" />
 
             <Button
@@ -119,6 +131,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:textSize="8sp"
                 android:text="朋友圈图片" />
 
             <Button
@@ -126,7 +139,16 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:textSize="8sp"
                 android:text="朋友圈视频" />
+
+            <Button
+                android:id="@+id/btWechatMomentMiniProgram"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="微信朋友圈小程序"
+                android:textSize="8sp" />
         </LinearLayout>
     </LinearLayout>
 

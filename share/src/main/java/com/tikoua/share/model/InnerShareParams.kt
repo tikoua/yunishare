@@ -1,6 +1,7 @@
 package com.tikoua.share.model
 
 import com.tikoua.share.wechat.WechatImageBuilder
+import com.tikoua.share.wechat.WechatMiniProgramBuilder
 import com.tikoua.share.wechat.WechatTextBuilder
 import com.tikoua.share.wechat.WechatVideoBuilder
 
@@ -21,6 +22,10 @@ class InnerShareParams {
         fun buildWechatVideo(): WechatVideoBuilder {
             return WechatVideoBuilder()
         }
+
+        fun buildMiniProgram(): WechatMiniProgramBuilder {
+            return WechatMiniProgramBuilder()
+        }
     }
 
     /**
@@ -36,8 +41,9 @@ class InnerShareParams {
     internal var miniProgramWebPageUrl: String? = null
     internal var miniProgramUserName: String? = null
     internal var miniProgramPath: String? = null
-    internal var miniProgramWithShareTicket: Boolean? = null
+    internal var miniProgramWithShareTicket: Boolean = true
     internal var miniProgramType: Int? = null
+    internal var thumbData: ByteArray? = null
 
     internal var IMAGE_FILE_PROVIDER_PATH = "image_provider_path"
     internal var FILE_PATH = "filePath"

@@ -5,23 +5,6 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
-
-    signingConfigs {
-        release {
-            keyAlias 'releasekey'
-            keyPassword 'uneedgame'
-            storeFile file('signture/releasekey.jks')
-            storePassword 'uneedgame'
-            v2SigningEnabled true
-        }
-        debug {
-            keyAlias 'releasekey'
-            keyPassword 'uneedgame'
-            storeFile file('signture/releasekey.jks')
-            storePassword 'uneedgame'
-            v2SigningEnabled true
-        }
-    }
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 29
@@ -35,11 +18,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            signingConfig signingConfigs.debug
         }
     }
 }

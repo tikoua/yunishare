@@ -1,5 +1,6 @@
 package com.tikoua.share.wechat
 
+import com.tencent.mm.opensdk.modelmsg.WXMiniProgramObject
 import com.tikoua.share.model.InnerShareParams
 import com.tikoua.share.model.ShareType
 
@@ -9,7 +10,6 @@ import com.tikoua.share.model.ShareType
  *   on 2020/8/11 6:21 PM
  */
 class WechatMiniProgramBuilder() {
-    private var text: String? = null
     private var title: String? = null
 
     /**
@@ -44,8 +44,8 @@ class WechatMiniProgramBuilder() {
     测试版: WXMiniProgramObject.MINIPROGRAM_TYPE_TEST;
     预览版: WXMiniProgramObject.MINIPROGRAM_TYPE_PREVIEW
      */
-    private var miniProgramType: Int? = null
-
+    private var miniProgramType: Int = WXMiniProgramObject.MINIPTOGRAM_TYPE_RELEASE
+    private var thumbData: ByteArray? = null
     fun webPageUrl(webPageUrl: String?): WechatMiniProgramBuilder {
         this.webPageUrl = webPageUrl
         return this
@@ -66,23 +66,38 @@ class WechatMiniProgramBuilder() {
         return this
     }
 
-    fun miniProgramType(miniProgramType: Int?): WechatMiniProgramBuilder {
+    fun miniProgramType(miniProgramType: Int): WechatMiniProgramBuilder {
         this.miniProgramType = miniProgramType
         return this
     }
 
+    fun thumbData(thumbData: ByteArray?): WechatMiniProgramBuilder {
+        this.thumbData = thumbData
+        return this
+    }
+
+    fun title(title: String?): WechatMiniProgramBuilder {
+        this.title = title
+        return this
+    }
+
+
     fun build(): InnerShareParams {
-        val text = text
-        if (text.isNullOrEmpty()) {
-            throw Exception("text can not be null")
+        val path = path
+        if (path.isNullOrEmpty()) {
+            throw Exception("path can not be null")
         }
         return InnerShareParams().apply {
             this.type = ShareType.WechatMiniProgram.type
             this.miniProgramWebPageUrl = this@WechatMiniProgramBuilder.webPageUrl
             this.miniProgramUserName = this@WechatMiniProgramBuilder.userName
             this.miniProgramPath = this@WechatMiniProgramBuilder.path
-            this.miniProgramWithShareTicket = this@WechatMiniProgramBuilder.withShareTicket
+            this@WechatMiniProgramBuilder.withShareTicket?.let {
+                this.miniProgramWithShareTicket = it
+            }
             this.miniProgramType = this@WechatMiniProgramBuilder.miniProgramType
+            this.thumbData = this@WechatMiniProgramBuilder.thumbData
+            this.title = this@WechatMiniProgramBuilder.title
         }
     }
 }
