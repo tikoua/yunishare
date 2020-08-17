@@ -1,14 +1,13 @@
 package com.tikoua.share.platform
 
 import android.app.Activity
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import com.tencent.mm.opensdk.constants.Build
 import com.tencent.mm.opensdk.constants.ConstantsAPI
 import com.tencent.mm.opensdk.modelbase.BaseResp
@@ -81,9 +80,13 @@ class WechatPlatform : Platform {
         if (!checkVersion) {
             return ShareResult(ShareEc.PlatformUnSupport)
         }
-
+        val type = shareParams.type
+        if (ShareType.Video.type == type) {
+            shareVideo(activity, shareParams, shareChannel)
+            return ShareResult(ShareEc.Success)
+        }
         val req: SendMessageToWX.Req =
-            when (shareParams.type) {
+            when (type) {
                 ShareType.Text.type -> {
                     getShareTextReq(activity, shareParams).apply {
                         if (shareChannel == ShareChannel.WechatFriend) {
@@ -285,6 +288,33 @@ class WechatPlatform : Platform {
         req.transaction = buildTransaction()
         req.message = msg
         return req
+    }
+
+    private fun shareVideo(
+        activity: Activity,
+        shareParams: InnerShareParams,
+        shareChannel: ShareChannel
+    ) {
+        val videoUrl = shareParams.videoUrl
+        val file = File(videoUrl)
+        val intent = Intent("android.intent.action.SEND")
+        val type = "video/*"
+        val uri: Uri
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            uri = FileProvider.getUriForFile(activity, "com.uneed.yuni.fileProvider", file)
+        } else {
+            uri = Uri.fromFile(file)
+        }
+        intent.setDataAndType(uri, type)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val pkg = "com.tencent.mm"
+        val cls =
+            "com.tencent.mm.ui.tools.${if (shareChannel == ShareChannel.WechatMoment) "AddFavoriteUI" else "ShareImgUI"}"
+
+        intent.component = ComponentName(pkg, cls)
+        intent.putExtra(Intent.EXTRA_STREAM, uri)
+        activity.startActivity(intent)
     }
 
 

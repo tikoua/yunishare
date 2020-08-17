@@ -146,10 +146,11 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun testShareWechatFriendVideo(videoUrl: String) {
         log("testShareWechatFriendVideo: $videoUrl")
+        val filePath = getFilePath("save/img/heihei.mp4", videoUrl)
         YuniShare.share(
             this@MainActivity,
             ShareChannel.WechatFriend,
-            InnerShareParams.buildWechatVideo().videoUrl(videoUrl).title("标题: 与你分享来的视频")
+            InnerShareParams.buildWechatVideo().videoUrl(filePath).title("标题: 与你分享来的视频")
                 .desc("描述: 狗咬狗哈哈哈").build()
         ).apply {
             log("share result: $this")
@@ -226,10 +227,13 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun testShareWechatMomentVideo(videoUrl: String) {
         log("testShareWechatFriendVideo: $videoUrl")
+        val imagePath = withContext(Dispatchers.IO) {
+            getFilePath("save/img/hahha.mp4", videoUrl)
+        }
         YuniShare.share(
             this@MainActivity,
             ShareChannel.WechatMoment,
-            InnerShareParams.buildWechatVideo().videoUrl(videoUrl).title("标题: 与你分享来的视频")
+            InnerShareParams.buildWechatVideo().videoUrl(imagePath).title("标题: 与你分享来的视频")
                 .desc("描述: 狗咬狗哈哈哈").build()
         ).apply {
             log("share result: $this")
