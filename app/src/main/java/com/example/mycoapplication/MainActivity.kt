@@ -30,6 +30,10 @@ class MainActivity : AppCompatActivity() {
         val path = "pages/index/main?uid=124287543079337984&key=491209839083520000"
         val title = "海非深64邀请你成为好友"
         val miniCover = "https://cdn.uneed.com/web/icon/add_friends.png"
+        val linkTitle = "对话怼出新趣味，同屏玩法层出不穷，集齐交友、聊天、云相册的个性化社交app~"
+        val linkDesc = "与你App - 强大的聊天体验"
+        val urlGet = "https://uneed.com/get"
+        val imgLog = "https://cdn.uneed.com/logo_box.png"
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         GlobalScope.launch {
@@ -65,26 +69,23 @@ class MainActivity : AppCompatActivity() {
                 testShareWechatFriendMiniprogram(pageUrl, path, title, miniCover)
             }
         }
-        btWechatMomentText.setOnClickListener {
+        btWechatFriendLink.setOnClickListener {
             GlobalScope.launch {
-                testShareWechatMomentText(text)
+                testShareWechatFriendLink(urlGet, linkTitle, linkDesc, imgLog)
             }
         }
+
         btWechatMomentImage.setOnClickListener {
             GlobalScope.launch {
                 testShareWechatMomentImage(imageUrl)
             }
         }
-        btWechatMomentVideo.setOnClickListener {
+        btWechatMomentLink.setOnClickListener {
             GlobalScope.launch {
-                testShareWechatMomentVideo(videoUrl)
+                testShareWechatMomentLink(urlGet, linkTitle, linkDesc, imgLog)
             }
         }
-        btWechatMomentMiniProgram.setOnClickListener {
-            GlobalScope.launch {
-                testShareWechatMomentMiniProgram(pageUrl, path, title, miniCover)
-            }
-        }
+
         btQQText.setOnClickListener {
             GlobalScope.launch {
                 testShareQQText(text)
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity() {
                 testShareQQImage(imageUrl)
             }
         }
-        btQQRemoteImage.setOnClickListener {
+        btQQLink.setOnClickListener {
             GlobalScope.launch {
                 testShareQQRemoteImage(imageUrl)
             }
@@ -191,16 +192,34 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private suspend fun testShareWechatFriendLink(
+        urlGet: String,
+        linkTitle: String,
+        linkDesc: String,
+        imgLog: String
+    ) {
+        val filePath = getFilePath("save/img/imglogo.png", imgLog)
+        val thumb = filePath?.let {
+            withContext(Dispatchers.IO) {
+                return@withContext FileInputStream(filePath).use { fis ->
+                    val bytes = ByteArray(fis.available())
+                    fis.read(bytes)
+                    return@use bytes
+                }
+            }
+        }
 
-    private suspend fun testShareWechatMomentText(text: String) {
         YuniShare.share(
-            this,
-            ShareChannel.WechatMoment,
-            InnerShareParams.buildWechatText().text(text).build()
+            this@MainActivity,
+            ShareChannel.WechatFriend,
+            InnerShareParams.buildWechatLink().title(linkTitle).desc(linkDesc).thumbData(thumb)
+                .link(urlGet).build()
         ).apply {
             log("share result: $this")
         }
+
     }
+
 
     private suspend fun testShareWechatMomentImage(imageUrl: String) {
         GlobalScope.launch(Dispatchers.IO) {
@@ -226,27 +245,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun testShareWechatMomentVideo(videoUrl: String) {
-        log("testShareWechatFriendVideo: $videoUrl")
-        val imagePath = withContext(Dispatchers.IO) {
-            pickVideo()
-        }
-        YuniShare.share(
-            this@MainActivity,
-            ShareChannel.WechatMoment,
-            InnerShareParams.buildWechatVideo().videoPath(imagePath).build()
-        ).apply {
-            log("share result: $this")
-        }
-    }
 
-    private suspend fun testShareWechatMomentMiniProgram(
-        pageUrl: String,
-        path: String,
-        title: String,
-        miniCover: String
+    private suspend fun testShareWechatMomentLink(
+        urlGet: String,
+        linkTitle: String,
+        linkDesc: String,
+        imgLog: String
     ) {
-        val filePath = getFilePath("save/img/thumbcover.jpg", miniCover)
+        val filePath = getFilePath("save/img/imglogo.png", imgLog)
         val thumb = filePath?.let {
             withContext(Dispatchers.IO) {
                 return@withContext FileInputStream(filePath).use { fis ->
@@ -256,21 +262,15 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        log("thumb: ${thumb?.size}")
+
         YuniShare.share(
-            this,
+            this@MainActivity,
             ShareChannel.WechatMoment,
-            InnerShareParams.buildMiniProgram()
-                .path(path)
-                .webPageUrl(pageUrl)
-                .thumbData(thumb)
-                .userName(loadWechatMeta().userName)
-                .title(title)
-                .build()
+            InnerShareParams.buildWechatLink().title(linkTitle).desc(linkDesc).thumbData(thumb)
+                .link(urlGet).build()
         ).apply {
             log("share result: $this")
         }
-
     }
 
     private suspend fun testShareQQText(text: String) {
@@ -343,6 +343,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
 
     private suspend fun downloadFile(path: String, url: String): String? {
         val download = DownloadUtils.download(url, path)

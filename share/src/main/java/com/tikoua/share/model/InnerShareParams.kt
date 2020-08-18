@@ -3,10 +3,7 @@ package com.tikoua.share.model
 import com.tikoua.share.qq.QQImageBuilder
 import com.tikoua.share.qq.QQTextBuilder
 import com.tikoua.share.qq.QQVideoBuilder
-import com.tikoua.share.wechat.WechatImageBuilder
-import com.tikoua.share.wechat.WechatMiniProgramBuilder
-import com.tikoua.share.wechat.WechatTextBuilder
-import com.tikoua.share.wechat.WechatVideoBuilder
+import com.tikoua.share.wechat.*
 
 /**
  *   created by dcl
@@ -28,6 +25,10 @@ class InnerShareParams {
 
         fun buildMiniProgram(): WechatMiniProgramBuilder {
             return WechatMiniProgramBuilder()
+        }
+
+        fun buildWechatLink(): WechatLinkBuilder {
+            return WechatLinkBuilder()
         }
 
         fun buildQQText(): QQTextBuilder {
@@ -61,6 +62,7 @@ class InnerShareParams {
     internal var miniProgramType: Int? = null
     internal var thumbData: ByteArray? = null
     internal var appName: String? = null
+    internal var link: String? = null
 
     /**
      * 点击后跳转的url

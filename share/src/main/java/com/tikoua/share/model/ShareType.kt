@@ -9,5 +9,6 @@ enum class ShareType(val type: Int) {
     Image(2),
     Video(3),
     WechatMiniProgram(4),
+    Link(5),
     ;
 }

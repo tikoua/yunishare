@@ -12,6 +12,7 @@ import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage
 import com.tencent.mm.opensdk.modelmsg.WXMiniProgramObject
+import com.tencent.mm.opensdk.modelmsg.WXWebpageObject
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import com.tikoua.share.model.*
@@ -89,6 +90,9 @@ class WechatPlatform : Platform {
             ShareType.WechatMiniProgram.type -> {
                 shareMiniProgram(activity, shareParams, shareChannel)
             }
+            ShareType.Link.type -> {
+                shareLink(activity, shareParams, shareChannel)
+            }
             else -> ShareResult(ShareEc.PlatformUnSupport)
         }.also {
             if (!it.isSuccess()) {
@@ -98,6 +102,7 @@ class WechatPlatform : Platform {
             }
         }
     }
+
 
     /**
      * 生成小程序分享的req
@@ -209,56 +214,51 @@ class WechatPlatform : Platform {
         shareMiniProgramReq.apply {
             this.scene = SendMessageToWX.Req.WXSceneSession
         }
-        shareEc = null
-        val hashCode = activity.hashCode()
-        activity.application.registerActivityLifecycleCallbacks(object :
-            ActivityLifecycleCallback() {
-            override fun onActivityResumed(activity: Activity) {
-                if (hashCode == activity.hashCode()) {
-                    activity.application.unregisterActivityLifecycleCallbacks(this)
-                    GlobalScope.launch {
-                        delay(1000)
-                        if (shareEc == null) {
-                            //没返回错误码也当做成功
-                            shareEc = BaseResp.ErrCode.ERR_OK
-                        }
-                    }
+        return shareBySdk(activity, shareMiniProgramReq)
+    }
 
-                }
-            }
-        })
-        val sendReq = getApi(activity).sendReq(shareMiniProgramReq)
-        if (!sendReq) {
-            return ShareResult(ShareEc.NotInstall)
+    /**
+     * 分享链接
+     */
+    private suspend fun shareLink(
+        activity: Activity,
+        shareParams: InnerShareParams,
+        shareChannel: ShareChannel
+    ): ShareResult {
+        val title = shareParams.title
+        val desc = shareParams.desc
+        val link = shareParams.link
+        val checkLink = link.checkEmpty("link")
+        if (!checkLink.isNullOrEmpty()) {
+            return ShareResult(ShareEc.ParameterError, checkLink)
         }
-        var resultEc = 0
-        while (true) {
-            val result = shareEc
-            if (result != null) {
-                resultEc = result
-                break
-            }
-            Log.v("WechatPlatform", "wait ...")
-            delay(1000)
+        val thumbData = shareParams.thumbData
+        val req = makeLinkReq(link!!, title, desc, thumbData)
+        req.apply {
+            this.scene =
+                if (shareChannel == ShareChannel.WechatFriend) SendMessageToWX.Req.WXSceneSession else SendMessageToWX.Req.WXSceneTimeline
         }
-        val ec = when (resultEc) {
-            BaseResp.ErrCode.ERR_OK -> {
-                ShareEc.Success
-            }
-            BaseResp.ErrCode.ERR_USER_CANCEL -> {
-                ShareEc.Cancel
-            }
-            BaseResp.ErrCode.ERR_AUTH_DENIED -> {
-                ShareEc.AuthDenied
-            }
-            BaseResp.ErrCode.ERR_UNSUPPORT -> {
-                ShareEc.PlatformUnSupport
-            }
-            else -> {
-                ShareEc.Unknown
-            }
-        }
-        return ShareResult(ec)
+        return shareBySdk(activity, req)
+    }
+
+    private fun makeLinkReq(
+        link: String,
+        title: String?,
+        desc: String?,
+        thumbData: ByteArray?
+    ): SendMessageToWX.Req {
+        val wxMiniProgramObject = WXWebpageObject()
+        wxMiniProgramObject.webpageUrl = link
+        val msg = WXMediaMessage()
+        msg.mediaObject = wxMiniProgramObject
+        msg.description = desc
+        msg.title = title
+        msg.thumbData = thumbData
+        log("shareParams.thumbData: " + msg.thumbData?.size)
+        val req = SendMessageToWX.Req()
+        req.transaction = buildTransaction()
+        req.message = msg
+        return req
     }
 
     /**
@@ -339,6 +339,61 @@ class WechatPlatform : Platform {
             return getApi(context).wxAppSupportAPI >= Build.TIMELINE_SUPPORTED_SDK_INT
         }
         return true
+    }
+
+    /**
+     * 使用sdk分享
+     */
+    private suspend fun shareBySdk(activity: Activity, req: SendMessageToWX.Req): ShareResult {
+        shareEc = null
+        val hashCode = activity.hashCode()
+        activity.application.registerActivityLifecycleCallbacks(object :
+            ActivityLifecycleCallback() {
+            override fun onActivityResumed(activity: Activity) {
+                if (hashCode == activity.hashCode()) {
+                    activity.application.unregisterActivityLifecycleCallbacks(this)
+                    GlobalScope.launch {
+                        delay(1000)
+                        if (shareEc == null) {
+                            //没返回错误码也当做成功
+                            shareEc = BaseResp.ErrCode.ERR_OK
+                        }
+                    }
+                }
+            }
+        })
+        val sendReq = getApi(activity).sendReq(req)
+        if (!sendReq) {
+            return ShareResult(ShareEc.NotInstall)
+        }
+        var resultEc = 0
+        while (true) {
+            val result = shareEc
+            if (result != null) {
+                resultEc = result
+                break
+            }
+            Log.v("WechatPlatform", "wait ...")
+            delay(1000)
+        }
+        val ec = when (resultEc) {
+            BaseResp.ErrCode.ERR_OK -> {
+                ShareEc.Success
+            }
+            BaseResp.ErrCode.ERR_USER_CANCEL -> {
+                ShareEc.Cancel
+            }
+            BaseResp.ErrCode.ERR_AUTH_DENIED -> {
+                ShareEc.AuthDenied
+            }
+            BaseResp.ErrCode.ERR_UNSUPPORT -> {
+                ShareEc.PlatformUnSupport
+            }
+            else -> {
+                ShareEc.Unknown
+            }
+        }
+        return ShareResult(ec)
     }
 }
 
