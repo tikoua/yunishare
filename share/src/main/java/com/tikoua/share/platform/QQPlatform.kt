@@ -4,15 +4,14 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import com.tencent.connect.share.QQShare
-import com.tencent.tauth.IUiListener
+import android.net.Uri
+import androidx.core.content.FileProvider
 import com.tencent.tauth.Tencent
-import com.tencent.tauth.UiError
 import com.tikoua.share.model.*
 import com.tikoua.share.qq.QQShareMeta
 import com.tikoua.share.qq.loadQQMeta
-import com.tikoua.share.utils.log
+import com.tikoua.share.utils.checkEmpty
+import java.io.File
 
 
 /**
@@ -26,7 +25,8 @@ class QQPlatform : Platform {
         tencentClient =
             Tencent.createInstance(
                 getMeta(context).appid,
-                context/*, "com.uneed.yuni.fileProvider"*/
+                context,
+                "${context.packageName}.fileProvider"
             )
     }
 
@@ -44,57 +44,24 @@ class QQPlatform : Platform {
             if (!qqInstalled) {
                 return@let ShareResult(ShareEc.NotInstall)
             }
-            val type = shareParams.type
-            if (!(type == ShareType.Text.type || type == ShareType.Image.type || type == ShareType.Video.type)) {
-                return@let ShareResult(ShareEc.PlatformUnSupport)
-            }
-            if (type == ShareType.Text.type) {
-                val text = shareParams.text!!
-                sharePlainText(activity, text)
-                return@let ShareResult(ShareEc.Success)
-            }
-            var ec: Int = ShareEc.Success
-            var qqType: Int = QQShare.SHARE_TO_QQ_TYPE_DEFAULT
-            when (type) {
+            return@let when (shareParams.type) {
+                ShareType.Text.type -> {
+                    val text = shareParams.text!!
+                    sharePlainText(activity, text + System.currentTimeMillis())
+                }
                 ShareType.Image.type -> {
-                    val title = shareParams.title
-                    qqType =
-                        if (title.isNullOrEmpty()) QQShare.SHARE_TO_QQ_TYPE_IMAGE else QQShare.SHARE_TO_QQ_TYPE_DEFAULT
+                    shareImage(activity, shareParams)
                 }
                 ShareType.Video.type -> {
-                    qqType = QQShare.SHARE_TO_QQ_TYPE_DEFAULT
+                    shareVideo(activity, shareParams)
                 }
-                else -> ec = ShareEc.PlatformUnSupport
+                else -> {
+                    ShareResult(ShareEc.PlatformUnSupport)
+                }
             }
-            if (ec != ShareEc.Success) {
-                return@let ShareResult(ec)
-            }
-            val params1 = Bundle().apply {
-                putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, qqType)
-                putString(QQShare.SHARE_TO_QQ_TITLE, shareParams.title)
-                putString(QQShare.SHARE_TO_QQ_SUMMARY, shareParams.desc)
-                putString(QQShare.SHARE_TO_QQ_TARGET_URL, shareParams.targetUrl)
-                putString(QQShare.SHARE_TO_QQ_APP_NAME, shareParams.appName)
-                putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, shareParams.imagePath)
-                putString(QQShare.SHARE_TO_QQ_IMAGE_URL, shareParams.imageUrl)
-            }
-            it.shareToQQ(activity, params1, object : IUiListener {
-                override fun onComplete(p0: Any?) {
-                    log("onComplete: $p0")
-                }
-
-                override fun onCancel() {
-                    log("onCancel ")
-                }
-
-                override fun onError(p0: UiError?) {
-                    log("onError: $p0")
-                }
-
-            })
-            ShareResult(ShareEc.PlatformUnSupport)
-        } ?: ShareResult(ShareEc.PlatformUnSupport)
+        } ?: ShareResult(ShareEc.NotInstall)
     }
+
 
     private fun getMeta(context: Context): QQShareMeta {
         var meta = meta
@@ -109,16 +76,61 @@ class QQPlatform : Platform {
     /**
      * qq分享的sdk本身不支持纯文本分享
      */
-    private fun sharePlainText(activity: Activity, text: String) {
-        val intent = Intent("android.intent.action.SEND")
-        intent.type = "text/plain"
+    private fun sharePlainText(activity: Activity, text: String): ShareResult {
+        val intent = makeIntent()
         intent.putExtra(Intent.EXTRA_SUBJECT, "与你")
         intent.putExtra(Intent.EXTRA_TEXT, text)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.type = "text/plain"
+        activity.startActivity(intent)
+        return ShareResult(ShareEc.Success)
+    }
+
+    /**
+     * 分享本地图片
+     */
+    private fun shareImage(activity: Activity, shareParams: InnerShareParams): ShareResult {
+        val imagePath = shareParams.imagePath
+        val checkEmpty = imagePath.checkEmpty("imagePath")
+        if (checkEmpty != null) {
+            return ShareResult(ShareEc.ParameterError, checkEmpty)
+        }
+        val intent = makeMediaIntent(activity, imagePath!!, "image/*")
+        activity.startActivity(intent)
+        return ShareResult(ShareEc.Success)
+    }
+
+    private fun shareVideo(activity: Activity, shareParams: InnerShareParams): ShareResult {
+        val imagePath = shareParams.videoPath
+        val checkEmpty = imagePath.checkEmpty("videoPath")
+        if (checkEmpty != null) {
+            return ShareResult(ShareEc.ParameterError, checkEmpty)
+        }
+        val intent = makeMediaIntent(activity, imagePath!!, "video/*")
+        activity.startActivity(intent)
+        return ShareResult(ShareEc.Success)
+    }
+
+    private fun makeIntent(): Intent {
+        val intent = Intent(Intent.ACTION_SEND)
         intent.component = ComponentName(
             "com.tencent.mobileqq",
             "com.tencent.mobileqq.activity.JumpActivity"
         )
-        activity.startActivity(intent)
+        return intent
+    }
+
+    private fun makeMediaIntent(context: Context, filePath: String, contentType: String): Intent {
+        val intent = makeIntent()
+        val uri: Uri
+        val file = File(filePath)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            uri = FileProvider.getUriForFile(context, "${context.packageName}.fileProvider", file)
+        } else {
+            uri = Uri.fromFile(file)
+        }
+        intent.type = contentType
+        intent.putExtra(Intent.EXTRA_STREAM, uri)
+        return intent
     }
 }

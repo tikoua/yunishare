@@ -54,7 +54,7 @@ class QQImageBuilder {
             this.imagePath = path
             this.imageUrl = url
             this.appName = this@QQImageBuilder.appName
-            this.title = title
+            this.title = this@QQImageBuilder.title
             this.desc = this@QQImageBuilder.desc
             this.targetUrl = url
         }

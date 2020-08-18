@@ -333,8 +333,7 @@ class MainActivity : AppCompatActivity() {
                 YuniShare.share(
                     this@MainActivity,
                     ShareChannel.QQFriend,
-                    InnerShareParams.buildQQImage().imagePath(imagePath)
-                        .appName("与你").build()
+                    InnerShareParams.buildQQVideo().videoPath(imagePath).build()
                 ).apply {
                     log("share result: $this")
                 }

@@ -2,6 +2,7 @@ package com.tikoua.share.model
 
 import com.tikoua.share.qq.QQImageBuilder
 import com.tikoua.share.qq.QQTextBuilder
+import com.tikoua.share.qq.QQVideoBuilder
 import com.tikoua.share.wechat.WechatImageBuilder
 import com.tikoua.share.wechat.WechatMiniProgramBuilder
 import com.tikoua.share.wechat.WechatTextBuilder
@@ -35,6 +36,10 @@ class InnerShareParams {
 
         fun buildQQImage(): QQImageBuilder {
             return QQImageBuilder()
+        }
+
+        fun buildQQVideo(): QQVideoBuilder {
+            return QQVideoBuilder()
         }
     }
 
