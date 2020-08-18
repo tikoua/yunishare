@@ -47,7 +47,7 @@ class InnerShareParams {
     internal var imageUrl: String? = null
     internal var title: String? = null
     internal var desc: String? = null
-    internal var videoUrl: String? = null
+    internal var videoPath: String? = null
     internal var videoLowBandUrl: String? = null
     internal var miniProgramWebPageUrl: String? = null
     internal var miniProgramUserName: String? = null

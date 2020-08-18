@@ -1,10 +1,13 @@
 package com.example.mycoapplication
 
+import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.MimeTypeMap
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mycoapplication.utils.DownloadUtils
+import com.lcw.library.imagepicker.ImagePicker
 import com.tikoua.share.YuniShare
 import com.tikoua.share.model.InnerShareParams
 import com.tikoua.share.model.ShareChannel
@@ -128,8 +131,7 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun testShareWechatFriendImage(imageUrl: String) {
         log("testShareImage 1")
-        val imagePath = getFilePath("save/img/hahah.jpg", imageUrl)
-
+        val imagePath = pickImage()
         log("testShareImage 2  imagePath: $imagePath")
         if (imagePath.isNullOrEmpty()) {
             return
@@ -138,7 +140,7 @@ class MainActivity : AppCompatActivity() {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.WechatFriend,
-            InnerShareParams.buildWechatImage().title("分享图片").imagePath(imagePath).build()
+            InnerShareParams.buildWechatImage().imagePath(imagePath).build()
         ).apply {
             log("share result: $this")
         }
@@ -146,12 +148,11 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun testShareWechatFriendVideo(videoUrl: String) {
         log("testShareWechatFriendVideo: $videoUrl")
-        val filePath = getFilePath("save/img/heihei.mp4", videoUrl)
+        val filePath = pickVideo()
         YuniShare.share(
             this@MainActivity,
             ShareChannel.WechatFriend,
-            InnerShareParams.buildWechatVideo().videoUrl(filePath).title("标题: 与你分享来的视频")
-                .desc("描述: 狗咬狗哈哈哈").build()
+            InnerShareParams.buildWechatVideo().videoPath(filePath).build()
         ).apply {
             log("share result: $this")
         }
@@ -182,7 +183,7 @@ class MainActivity : AppCompatActivity() {
                 .webPageUrl(pageUrl)
                 .thumbData(thumb)
                 .userName(loadWechatMeta().userName)
-                .title("小程序标题")
+                .title(title)
                 .build()
         ).apply {
             log("share result: $this")
@@ -205,7 +206,7 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 log("testShareImage 1")
-                val imagePath = getFilePath("save/img/hahha.jpg", imageUrl)
+                val imagePath = pickImage()
 
                 log("testShareImage 2  imagePath: $imagePath")
                 if (imagePath.isNullOrEmpty()) {
@@ -215,7 +216,7 @@ class MainActivity : AppCompatActivity() {
                 YuniShare.share(
                     this@MainActivity,
                     ShareChannel.WechatMoment,
-                    InnerShareParams.buildWechatImage().title("分享图片").imagePath(imagePath).build()
+                    InnerShareParams.buildWechatImage().imagePath(imagePath).build()
                 ).apply {
                     log("share result: $this")
                 }
@@ -228,13 +229,12 @@ class MainActivity : AppCompatActivity() {
     private suspend fun testShareWechatMomentVideo(videoUrl: String) {
         log("testShareWechatFriendVideo: $videoUrl")
         val imagePath = withContext(Dispatchers.IO) {
-            getFilePath("save/img/hahha.mp4", videoUrl)
+            pickVideo()
         }
         YuniShare.share(
             this@MainActivity,
             ShareChannel.WechatMoment,
-            InnerShareParams.buildWechatVideo().videoUrl(imagePath).title("标题: 与你分享来的视频")
-                .desc("描述: 狗咬狗哈哈哈").build()
+            InnerShareParams.buildWechatVideo().videoPath(imagePath).build()
         ).apply {
             log("share result: $this")
         }
@@ -288,7 +288,7 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 log("testShareImage 1")
-                val imagePath = getFilePath("save/img/hahha.jpg", imageUrl)
+                val imagePath = pickImage()
 
                 log("testShareImage 2  imagePath: $imagePath")
                 if (imagePath.isNullOrEmpty()) {
@@ -323,7 +323,7 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 log("testShareQQRemoteVideo 1")
-                val imagePath = getFilePath("save/img/hahha.mp4", imageUrl)
+                val imagePath = pickVideo()
 
                 log("testShareQQRemoteVideo 2  imagePath: $imagePath")
                 if (imagePath.isNullOrEmpty()) {
@@ -359,5 +359,48 @@ class MainActivity : AppCompatActivity() {
         return downloadFile(file.absolutePath, url)
     }
 
+    private suspend fun pickImage(): String? {
+        return pickMedia()
+    }
+
+    private suspend fun pickVideo(): String? {
+        return pickMedia()
+    }
+
+    private val REQUEST_SELECT_IMAGES_CODE = 1001
+    private var pickFile: String? = null
+    private suspend fun pickMedia(): String? {
+        pickFile = null
+        ImagePicker.getInstance()
+            .setTitle("标题") //设置标题
+            .showCamera(false) //设置是否显示拍照按钮
+            .showImage(true) //设置是否展示图片
+            .showVideo(true) //设置是否展示视频
+            .setSingleType(true) //设置图片视频不能同时选择
+            .setMaxCount(9) //设置最大选择图片数目(默认为1，单选)
+            .start(
+                this@MainActivity,
+                REQUEST_SELECT_IMAGES_CODE
+            )
+        while (pickFile == null) {
+            delay(1000)
+        }
+        val path = pickFile
+        return if (path.isNullOrEmpty()) null else path
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_SELECT_IMAGES_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                data?.let {
+                    val img = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES)
+                    pickFile = img.firstOrNull()
+                }
+            } else {
+                pickFile = ""
+            }
+        }
+    }
 
 }

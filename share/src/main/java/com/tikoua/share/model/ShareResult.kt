@@ -10,4 +10,8 @@ data class ShareResult(
      */
     val ec: Int,
     val em: String? = null      //捕获到某些异常时提供更具体的异常信息
-)
+) {
+    fun isSuccess(): Boolean {
+        return ec == ShareEc.Success
+    }
+}

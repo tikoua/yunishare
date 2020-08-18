@@ -45,6 +45,10 @@ class WechatMiniProgramBuilder() {
     预览版: WXMiniProgramObject.MINIPROGRAM_TYPE_PREVIEW
      */
     private var miniProgramType: Int = WXMiniProgramObject.MINIPTOGRAM_TYPE_RELEASE
+
+    /**
+     * 需要小于128kb
+     */
     private var thumbData: ByteArray? = null
     fun webPageUrl(webPageUrl: String?): WechatMiniProgramBuilder {
         this.webPageUrl = webPageUrl

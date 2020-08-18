@@ -7,17 +7,15 @@ import com.tikoua.share.model.ShareType
 /**
  *   created by dcl
  *   on 2020/8/11 6:21 PM
+ *   只支持分享本地图片
  */
 class WechatImageBuilder() {
+    /**
+     * 要分享的图片的本地路径
+     */
     private var imagePath: String? = null
-    private var title: String? = null
     fun imagePath(imagePath: String?): WechatImageBuilder {
         this.imagePath = imagePath
-        return this
-    }
-
-    fun title(title: String?): WechatImageBuilder {
-        this.title = title
         return this
     }
 
@@ -28,7 +26,6 @@ class WechatImageBuilder() {
         }
         return InnerShareParams().apply {
             this.imagePath = path
-            this.title = this@WechatImageBuilder.title
             type = ShareType.Image.type
         }
     }

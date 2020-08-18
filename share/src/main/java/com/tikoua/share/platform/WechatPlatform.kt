@@ -2,8 +2,6 @@ package com.tikoua.share.platform
 
 import android.app.Activity
 import android.content.*
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -11,19 +9,18 @@ import androidx.core.content.FileProvider
 import com.tencent.mm.opensdk.constants.Build
 import com.tencent.mm.opensdk.constants.ConstantsAPI
 import com.tencent.mm.opensdk.modelbase.BaseResp
-import com.tencent.mm.opensdk.modelmsg.*
+import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
+import com.tencent.mm.opensdk.modelmsg.WXMediaMessage
+import com.tencent.mm.opensdk.modelmsg.WXMiniProgramObject
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import com.tikoua.share.model.*
-import com.tikoua.share.utils.Util
+import com.tikoua.share.utils.checkEmpty
 import com.tikoua.share.wechat.WXConst
 import com.tikoua.share.wechat.WechatShareMeta
 import com.tikoua.share.wechat.loadWechatMeta
 import com.uneed.yuni.BuildConfig
-import com.uneed.yuni.R
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
 
@@ -35,7 +32,6 @@ import java.util.*
 class WechatPlatform : Platform {
     private var meta: WechatShareMeta? = null
     private var api: IWXAPI? = null
-    private val thumbSize = 150
     private var shareEc: Int? = null
     override fun init(context: Context) {
         val api = getApi(context)
@@ -58,7 +54,6 @@ class WechatPlatform : Platform {
                     log("errCode: $errCode")
                     shareEc = errCode
                 }
-
             }
         }, IntentFilter(WXConst.ActionWXResp))
     }
@@ -81,51 +76,139 @@ class WechatPlatform : Platform {
             return ShareResult(ShareEc.PlatformUnSupport)
         }
         val type = shareParams.type
-        if (ShareType.Video.type == type) {
-            shareVideo(activity, shareParams, shareChannel)
-            return ShareResult(ShareEc.Success)
-        }
-        val req: SendMessageToWX.Req =
-            when (type) {
-                ShareType.Text.type -> {
-                    getShareTextReq(activity, shareParams).apply {
-                        if (shareChannel == ShareChannel.WechatFriend) {
-                            this.scene = SendMessageToWX.Req.WXSceneSession
-                        } else if (shareChannel == ShareChannel.WechatMoment) {
-                            this.scene = SendMessageToWX.Req.WXSceneTimeline
-                        }
-                    }
-                }
-                ShareType.Image.type -> {
-                    getShareImageReq(activity, shareParams)?.apply {
-                        if (shareChannel == ShareChannel.WechatFriend) {
-                            this.scene = SendMessageToWX.Req.WXSceneSession
-                        } else if (shareChannel == ShareChannel.WechatMoment) {
-                            this.scene = SendMessageToWX.Req.WXSceneTimeline
-                        }
-                    }
-                }
-                ShareType.Video.type -> {
-                    getShareVideoReq(activity, shareParams)?.apply {
-                        if (shareChannel == ShareChannel.WechatFriend) {
-                            this.scene = SendMessageToWX.Req.WXSceneSession
-                        } else if (shareChannel == ShareChannel.WechatMoment) {
-                            this.scene = SendMessageToWX.Req.WXSceneTimeline
-                        }
-                    }
-                }
-                ShareType.WechatMiniProgram.type -> {
-                    if (shareChannel == ShareChannel.WechatFriend) {
-                        getShareMiniProgramReq(activity, shareParams)?.apply {
-                            this.scene = SendMessageToWX.Req.WXSceneSession
-                        }
-                    } else {
-                        null
-                    }
-                }
-                else -> null
+        return when (type) {
+            ShareType.Text.type -> {
+                shareText(activity, shareParams, shareChannel)
             }
-                ?: return ShareResult(ShareEc.PlatformUnSupport)
+            ShareType.Image.type -> {
+                shareImage(activity, shareParams, shareChannel)
+            }
+            ShareType.Video.type -> {
+                shareVideo(activity, shareParams, shareChannel)
+            }
+            ShareType.WechatMiniProgram.type -> {
+                shareMiniProgram(activity, shareParams, shareChannel)
+            }
+            else -> ShareResult(ShareEc.PlatformUnSupport)
+        }.also {
+            if (!it.isSuccess()) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(activity, "分享失败: ${it.ec}  ${it.em} ", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    /**
+     * 生成小程序分享的req
+     */
+    private fun getShareMiniProgramReq(
+        activity: Activity,
+        shareParams: InnerShareParams
+    ): SendMessageToWX.Req {
+        val pageUrl = shareParams.miniProgramWebPageUrl
+        val miniProgramPath = shareParams.miniProgramPath
+        val userName = shareParams.miniProgramUserName
+        val wxMiniProgramObject = WXMiniProgramObject()
+        wxMiniProgramObject.webpageUrl = pageUrl
+        wxMiniProgramObject.miniprogramType = WXMiniProgramObject.MINIPTOGRAM_TYPE_RELEASE
+        wxMiniProgramObject.path = miniProgramPath
+        wxMiniProgramObject.userName = userName
+        val msg = WXMediaMessage()
+        msg.mediaObject = wxMiniProgramObject
+        msg.description = shareParams.desc
+        msg.title = shareParams.title
+        msg.thumbData = shareParams.thumbData
+        log("shareParams.thumbData: " + msg.thumbData?.size)
+        val req = SendMessageToWX.Req()
+        req.transaction = buildTransaction()
+        req.message = msg
+        return req
+    }
+
+    /**
+     * 文字使用系统分享
+     */
+    private fun shareText(
+        activity: Activity,
+        shareParams: InnerShareParams,
+        shareChannel: ShareChannel
+    ): ShareResult {
+        //不支持分享纯文本到朋友圈
+        if (shareChannel != ShareChannel.WechatFriend) {
+            return ShareResult(ShareEc.PlatformUnSupport)
+        }
+        val intent = makeTextIntent(shareChannel, shareParams.text!!)
+        activity.startActivity(intent)
+        return ShareResult(ShareEc.Success)
+    }
+
+    /**
+     * 图片使用系统分享
+     */
+    private fun shareImage(
+        activity: Activity,
+        shareParams: InnerShareParams,
+        shareChannel: ShareChannel
+    ): ShareResult {
+        val imagePath = shareParams.imagePath!!
+        val intent = makeWechatMediaIntent(activity, shareChannel, imagePath, "image/*")
+        activity.startActivity(intent)
+        return ShareResult(ShareEc.Success)
+    }
+
+    /**
+     * 视频使用系统分享
+     */
+    private fun shareVideo(
+        activity: Activity,
+        shareParams: InnerShareParams,
+        shareChannel: ShareChannel
+    ): ShareResult {
+        //不支持分享视频到朋友圈
+        if (shareChannel != ShareChannel.WechatFriend) {
+            return ShareResult(ShareEc.PlatformUnSupport)
+        }
+        val videoUrl = shareParams.videoPath!!
+        val intent = makeWechatMediaIntent(activity, shareChannel, videoUrl, "video/*")
+        activity.startActivity(intent)
+        return ShareResult(ShareEc.Success)
+    }
+
+    /**
+     *使用sdk分享小程序到会话
+     */
+    private suspend fun shareMiniProgram(
+        activity: Activity,
+        shareParams: InnerShareParams,
+        shareChannel: ShareChannel
+    ): ShareResult {
+        //小程序不支持分享到朋友圈
+        if (shareChannel != ShareChannel.WechatFriend) {
+            return ShareResult(ShareEc.PlatformUnSupport)
+        }
+        val pageUrl = shareParams.miniProgramWebPageUrl
+        val miniProgramPath = shareParams.miniProgramPath
+        val userName = shareParams.miniProgramUserName
+        val urlEm = pageUrl.checkEmpty("miniProgramWebPageUrl")
+        val pathEm = miniProgramPath.checkEmpty("miniProgramPath")
+        val userNameEm = userName.checkEmpty("miniProgramUserName")
+        var em: String? = null
+        if (!urlEm.isNullOrEmpty()) {
+            em = urlEm
+        } else if (!pathEm.isNullOrEmpty()) {
+            em = pathEm
+        } else if (!userNameEm.isNullOrEmpty()) {
+            em = userNameEm
+        }
+        if (!em.isNullOrEmpty()) {
+            return ShareResult(ShareEc.ParameterError, em)
+        }
+
+        val shareMiniProgramReq = getShareMiniProgramReq(activity, shareParams)
+        shareMiniProgramReq.apply {
+            this.scene = SendMessageToWX.Req.WXSceneSession
+        }
         shareEc = null
         val hashCode = activity.hashCode()
         activity.application.registerActivityLifecycleCallbacks(object :
@@ -136,14 +219,15 @@ class WechatPlatform : Platform {
                     GlobalScope.launch {
                         delay(1000)
                         if (shareEc == null) {
-                            shareEc = BaseResp.ErrCode.ERR_USER_CANCEL
+                            //没返回错误码也当做成功
+                            shareEc = BaseResp.ErrCode.ERR_OK
                         }
                     }
 
                 }
             }
         })
-        val sendReq = getApi(activity).sendReq(req)
+        val sendReq = getApi(activity).sendReq(shareMiniProgramReq)
         if (!sendReq) {
             return ShareResult(ShareEc.NotInstall)
         }
@@ -177,128 +261,19 @@ class WechatPlatform : Platform {
         return ShareResult(ec)
     }
 
-
     /**
-     * 生成文本分享的req
+     * ShareImgUI           微信好友
+     * ShareToTimeLineUI    微信朋友圈
+     * AddFavoriteUI        微信收藏
      */
-    private fun getShareTextReq(
-        context: Context,
-        shareParams: InnerShareParams
-    ): SendMessageToWX.Req {
-        val textObj = WXTextObject()
-        val text = shareParams.text
-        textObj.text = text
-        val msg = WXMediaMessage()
-        msg.mediaObject = textObj
-        msg.description = text
-        val req = SendMessageToWX.Req()
-        req.transaction = buildTransaction()
-        req.message = msg
-        return req
-    }
-
-    /**
-     * 生成图片分享的req
-     */
-    private fun getShareImageReq(
-        context: Context,
-        shareParams: InnerShareParams
-    ): SendMessageToWX.Req? {
-        val path = shareParams.imagePath
-        if (path.isNullOrEmpty()) {
-            throw Exception("path can not be null")
-        }
-        val file = File(path)
-        if (!file.exists()) {
-            val tip: String =
-                context.getString(R.string.send_img_file_not_exist)
-            Toast.makeText(context, "$tip path = $path", Toast.LENGTH_LONG).show()
-            return null
-        }
-
-        val imgObj = WXImageObject()
-        imgObj.setImagePath(path)
-
-        val msg = WXMediaMessage()
-        msg.mediaObject = imgObj
-
-        val bmp = BitmapFactory.decodeFile(path)
-        val thumbBmp = Bitmap.createScaledBitmap(
-            bmp,
-            thumbSize,
-            thumbSize,
-            true
-        )
-        bmp.recycle()
-        msg.thumbData = Util.bmpToByteArray(thumbBmp, true)
-        val req = SendMessageToWX.Req()
-        req.transaction = buildTransaction()
-        req.message = msg
-        return req
-    }
-
-    /**
-     * 生成视频分享的req
-     */
-    private fun getShareVideoReq(
-        context: Context,
-        shareParams: InnerShareParams
-    ): SendMessageToWX.Req? {
-        val videoUrl = shareParams.videoUrl
-        if (videoUrl.isNullOrEmpty()) {
-            throw Exception("path can not be null")
-        }
-        val imgObj = WXVideoObject()
-        imgObj.videoUrl = videoUrl
-        val msg = WXMediaMessage()
-        msg.mediaObject = imgObj
-        msg.description = shareParams.desc
-        msg.title = shareParams.title
-        val req = SendMessageToWX.Req()
-        req.transaction = buildTransaction()
-        req.message = msg
-        return req
-    }
-
-    /**
-     * 生成小程序分享的req
-     */
-    private fun getShareMiniProgramReq(
+    private fun makeWechatMediaIntent(
         activity: Activity,
-        shareParams: InnerShareParams
-    ): SendMessageToWX.Req? {
-        val pageUrl = shareParams.miniProgramWebPageUrl
-        val miniProgramPath = shareParams.miniProgramPath
-        val userName = shareParams.miniProgramUserName
-        if (pageUrl.isNullOrEmpty() || miniProgramPath.isNullOrEmpty() || userName.isNullOrEmpty()) {
-            throw Exception("pageUrl can not be null")
-        }
-        val wxMiniProgramObject = WXMiniProgramObject()
-        wxMiniProgramObject.webpageUrl = pageUrl
-        wxMiniProgramObject.miniprogramType = WXMiniProgramObject.MINIPTOGRAM_TYPE_RELEASE
-        wxMiniProgramObject.path = miniProgramPath
-        wxMiniProgramObject.userName = userName
-        val msg = WXMediaMessage()
-        msg.mediaObject = wxMiniProgramObject
-        msg.description = shareParams.desc
-        msg.title = shareParams.title
-        msg.thumbData = shareParams.thumbData
-        log("shareParams.thumbData: " + msg.thumbData?.size)
-        val req = SendMessageToWX.Req()
-        req.transaction = buildTransaction()
-        req.message = msg
-        return req
-    }
-
-    private fun shareVideo(
-        activity: Activity,
-        shareParams: InnerShareParams,
-        shareChannel: ShareChannel
-    ) {
-        val videoUrl = shareParams.videoUrl
-        val file = File(videoUrl)
+        shareChannel: ShareChannel,
+        filePath: String,
+        type: String
+    ): Intent {
+        val file = File(filePath)
         val intent = Intent("android.intent.action.SEND")
-        val type = "video/*"
         val uri: Uri
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -308,15 +283,19 @@ class WechatPlatform : Platform {
         }
         intent.setDataAndType(uri, type)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        val pkg = "com.tencent.mm"
-        val cls =
-            "com.tencent.mm.ui.tools.${if (shareChannel == ShareChannel.WechatMoment) "AddFavoriteUI" else "ShareImgUI"}"
-
-        intent.component = ComponentName(pkg, cls)
+        intent.makePackage(shareChannel)
         intent.putExtra(Intent.EXTRA_STREAM, uri)
-        activity.startActivity(intent)
+        return intent
     }
 
+    private fun makeTextIntent(shareChannel: ShareChannel, text: String): Intent {
+        return Intent("android.intent.action.SEND").apply {
+            makePackage(shareChannel)
+            putExtra(Intent.EXTRA_TEXT, text)
+            type = "text/plain"
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+    }
 
     /**
      * 创建唯一的事务标志
@@ -360,5 +339,16 @@ class WechatPlatform : Platform {
             return getApi(context).wxAppSupportAPI >= Build.TIMELINE_SUPPORTED_SDK_INT
         }
         return true
+    }
+}
+
+private fun Intent.makePackage(shareChannel: ShareChannel) {
+    val pkg = "com.tencent.mm"
+    if (true) {
+        val cls =
+            "com.tencent.mm.ui.tools.${if (shareChannel == ShareChannel.WechatMoment) "ShareToTimeLineUI" else "ShareImgUI"}"
+        component = ComponentName(pkg, cls)
+    } else {
+        setPackage(pkg)
     }
 }

@@ -10,12 +10,11 @@ import com.tikoua.share.model.ShareType
  */
 class WechatTextBuilder() {
     private var text: String? = null
-    private var title: String? = null
     fun text(text: String?): WechatTextBuilder {
         this.text = text
         return this
     }
-    
+
     fun build(): InnerShareParams {
         val text = text
         if (text.isNullOrEmpty()) {
@@ -24,7 +23,6 @@ class WechatTextBuilder() {
         return InnerShareParams().apply {
             this.type = ShareType.Text.type
             this.text = text
-            this.title = this@WechatTextBuilder.title
         }
     }
 }
