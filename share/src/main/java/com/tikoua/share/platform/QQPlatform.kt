@@ -207,13 +207,17 @@ class QQPlatform : Platform {
                 )
             }
         }
-        return doShare(activity, channel, params)
+        return doShare(activity, channel, params, true)
     }
 
+    /**
+     *  @param isLink 分享链接到空间需要使用shareToQzone 其他的使用publishToQzone
+     */
     private suspend fun doShare(
         activity: Activity,
         channel: ShareChannel,
-        params: Bundle
+        params: Bundle,
+        isLink: Boolean = false
     ): ShareResult {
         var ec: Int? = null
         val shareListener = object : IUiListener {
@@ -247,7 +251,11 @@ class QQPlatform : Platform {
             }
         })
         if (channel == ShareChannel.QQZone) {
-            tencentClient?.publishToQzone(activity, params, shareListener)
+            if (isLink) {
+                tencentClient?.shareToQzone(activity, params, shareListener)
+            } else {
+                tencentClient?.publishToQzone(activity, params, shareListener)
+            }
         } else {
             tencentClient?.shareToQQ(activity, params, shareListener)
         }
