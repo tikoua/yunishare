@@ -9,6 +9,8 @@ import android.os.Bundle
 import androidx.core.content.FileProvider
 import com.tencent.connect.share.QQShare
 import com.tencent.connect.share.QQShare.SHARE_TO_QQ_TYPE_DEFAULT
+import com.tencent.connect.share.QzonePublish
+import com.tencent.connect.share.QzonePublish.PUBLISH_TO_QZONE_TYPE_PUBLISHMOOD
 import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.tauth.IUiListener
 import com.tencent.tauth.Tencent
@@ -89,22 +91,30 @@ class QQPlatform : Platform {
     /**
      * qq分享的sdk本身不支持纯文本分享
      */
-    private fun sharePlainText(
+    private suspend fun sharePlainText(
         activity: Activity,
         channel: ShareChannel,
         text: String
     ): ShareResult {
-        val intent = makeIntent()
-        intent.putExtra(Intent.EXTRA_TEXT, text)
-        intent.type = "text/plain"
-        activity.startActivity(intent)
-        return ShareResult(ShareEc.Success)
+        if (channel == ShareChannel.QQFriend) {
+            val intent = makeIntent()
+            intent.putExtra(Intent.EXTRA_TEXT, text)
+            intent.type = "text/plain"
+            activity.startActivity(intent)
+            return ShareResult(ShareEc.Success)
+        } else {
+            val params = Bundle().apply {
+                putInt(QzonePublish.PUBLISH_TO_QZONE_KEY_TYPE, PUBLISH_TO_QZONE_TYPE_PUBLISHMOOD)
+                putString(QzonePublish.PUBLISH_TO_QZONE_SUMMARY, text)
+            }
+            return doShare(activity, channel, params)
+        }
     }
 
     /**
      * 分享本地图片
      */
-    private fun shareImage(
+    private suspend fun shareImage(
         activity: Activity,
         channel: ShareChannel,
         shareParams: InnerShareParams
@@ -114,15 +124,28 @@ class QQPlatform : Platform {
         if (checkEmpty != null) {
             return ShareResult(ShareEc.ParameterError, checkEmpty)
         }
-        val intent = makeMediaIntent(activity, imagePath!!, "image/*")
-        activity.startActivity(intent)
-        return ShareResult(ShareEc.Success)
+        return if (channel == ShareChannel.QQZone) {
+            val params = Bundle().apply {
+                putInt(QzonePublish.PUBLISH_TO_QZONE_KEY_TYPE, PUBLISH_TO_QZONE_TYPE_PUBLISHMOOD)
+                putStringArrayList(
+                    QzonePublish.PUBLISH_TO_QZONE_IMAGE_URL,
+                    ArrayList<String?>().apply {
+                        add(imagePath)
+                    })
+            }
+            doShare(activity, channel, params)
+        } else {
+            val intent = makeMediaIntent(activity, imagePath!!, "image/*")
+            activity.startActivity(intent)
+            ShareResult(ShareEc.Success)
+        }
+
     }
 
     /**
      * 分享本地视频
      */
-    private fun shareVideo(
+    private suspend fun shareVideo(
         activity: Activity,
         channel: ShareChannel,
         shareParams: InnerShareParams
@@ -132,9 +155,20 @@ class QQPlatform : Platform {
         if (checkEmpty != null) {
             return ShareResult(ShareEc.ParameterError, checkEmpty)
         }
-        val intent = makeMediaIntent(activity, imagePath!!, "video/*")
-        activity.startActivity(intent)
-        return ShareResult(ShareEc.Success)
+        return if (channel == ShareChannel.QQZone) {
+            val params = Bundle().apply {
+                putInt(
+                    QzonePublish.PUBLISH_TO_QZONE_KEY_TYPE,
+                    QzonePublish.PUBLISH_TO_QZONE_TYPE_PUBLISHVIDEO
+                )
+                putString(QzonePublish.PUBLISH_TO_QZONE_VIDEO_PATH, imagePath)
+            }
+            doShare(activity, channel, params)
+        } else {
+            val intent = makeMediaIntent(activity, imagePath!!, "video/*")
+            activity.startActivity(intent)
+            ShareResult(ShareEc.Success)
+        }
     }
 
     /**
@@ -192,6 +226,7 @@ class QQPlatform : Platform {
             }
 
             override fun onError(p0: UiError?) {
+                log("onError: ${p0}", javaClass.simpleName)
                 ec = ShareEc.PlatformError
             }
         }
@@ -212,7 +247,7 @@ class QQPlatform : Platform {
             }
         })
         if (channel == ShareChannel.QQZone) {
-            tencentClient?.shareToQzone(activity, params, shareListener)
+            tencentClient?.publishToQzone(activity, params, shareListener)
         } else {
             tencentClient?.shareToQQ(activity, params, shareListener)
         }

@@ -107,12 +107,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     testShareQQLocalVideo()
                 }
                 btQQLink -> testShareQQLink(urlGet, linkTitle, linkDesc, imgLog)
-                btQZoneText -> {
-                }
-                btQZoneLocalImage -> {
-                }
-                btQZoneVideo -> {
-                }
+                btQZoneText -> testShareQZoneText(text)
+                btQZoneLocalImage -> testShareQZoneImage()
+                btQZoneVideo -> testShareQZoneVideo()
                 btQZoneLink -> {
                     testShareQZoneLink(urlGet, linkTitle, linkDesc, imgLog)
                 }
@@ -302,26 +299,46 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private suspend fun testShareQQImage(imageUrl: String) {
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
-                log("testShareImage 1")
-                val imagePath = pickImage()
+        try {
+            log("testShareImage 1")
+            val imagePath = pickImage()
 
-                log("testShareImage 2  imagePath: $imagePath")
-                if (imagePath.isNullOrEmpty()) {
-                    return@launch
-                }
-                log("imagePath: $imagePath")
-                YuniShare.share(
-                    this@MainActivity,
-                    ShareChannel.QQFriend,
-                    InnerShareParams.buildQQImage().imagePath(imagePath).build()
-                ).apply {
-                    log("share result: $this")
-                }
-            } catch (error: Throwable) {
-                error.printStackTrace()
+            log("testShareImage 2  imagePath: $imagePath")
+            if (imagePath.isNullOrEmpty()) {
+                return
             }
+            log("imagePath: $imagePath")
+            YuniShare.share(
+                this@MainActivity,
+                ShareChannel.QQFriend,
+                InnerShareParams.buildQQImage().imagePath(imagePath).build()
+            ).apply {
+                log("share result: $this")
+            }
+        } catch (error: Throwable) {
+            error.printStackTrace()
+        }
+    }
+
+    private suspend fun testShareQQLocalVideo() {
+        try {
+            log("testShareQQRemoteVideo 1")
+            val imagePath = pickVideo()
+
+            log("testShareQQRemoteVideo 2  imagePath: $imagePath")
+            if (imagePath.isNullOrEmpty()) {
+                return
+            }
+            log("testShareQQRemoteVideo: $imagePath")
+            YuniShare.share(
+                this@MainActivity,
+                ShareChannel.QQFriend,
+                InnerShareParams.buildQQVideo().videoPath(imagePath).build()
+            ).apply {
+                log("share result: $this")
+            }
+        } catch (error: Throwable) {
+            error.printStackTrace()
         }
     }
 
@@ -341,6 +358,62 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    private suspend fun testShareQZoneText(text: String) {
+        YuniShare.share(
+            this,
+            ShareChannel.QQZone,
+            InnerShareParams.buildQQText().text(text)
+                .targetUrl("https://www.baidu.com").build()
+        ).apply {
+            log("share result: $this")
+        }
+    }
+
+    private suspend fun testShareQZoneImage() {
+        try {
+            log("testShareImage 1")
+            val imagePath = pickImage()
+
+            log("testShareImage 2  imagePath: $imagePath")
+            if (imagePath.isNullOrEmpty()) {
+                return
+            }
+            log("imagePath: $imagePath")
+            YuniShare.share(
+                this@MainActivity,
+                ShareChannel.QQZone,
+                InnerShareParams.buildQQImage().imagePath(imagePath).build()
+            ).apply {
+                log("share result: $this")
+            }
+        } catch (error: Throwable) {
+            error.printStackTrace()
+        }
+    }
+
+
+    private suspend fun testShareQZoneVideo() {
+        try {
+            log("testShareQQRemoteVideo 1")
+            val imagePath = pickVideo()
+
+            log("testShareQQRemoteVideo 2  imagePath: $imagePath")
+            if (imagePath.isNullOrEmpty()) {
+                return
+            }
+            log("testShareQQRemoteVideo: $imagePath")
+            YuniShare.share(
+                this@MainActivity,
+                ShareChannel.QQZone,
+                InnerShareParams.buildQQVideo().videoPath(imagePath).build()
+            ).apply {
+                log("share result: $this")
+            }
+        } catch (error: Throwable) {
+            error.printStackTrace()
+        }
+    }
+
     private suspend fun testShareQZoneLink(
         urlGet: String,
         linkTitle: String,
@@ -355,31 +428,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         ).apply {
             log("share result: $this")
         }
-    }
-
-    private suspend fun testShareQQLocalVideo() {
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
-                log("testShareQQRemoteVideo 1")
-                val imagePath = pickVideo()
-
-                log("testShareQQRemoteVideo 2  imagePath: $imagePath")
-                if (imagePath.isNullOrEmpty()) {
-                    return@launch
-                }
-                log("testShareQQRemoteVideo: $imagePath")
-                YuniShare.share(
-                    this@MainActivity,
-                    ShareChannel.QQFriend,
-                    InnerShareParams.buildQQVideo().videoPath(imagePath).build()
-                ).apply {
-                    log("share result: $this")
-                }
-            } catch (error: Throwable) {
-                error.printStackTrace()
-            }
-        }
-
     }
 
 
