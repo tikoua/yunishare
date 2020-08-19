@@ -23,18 +23,6 @@ import java.io.FileInputStream
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val text = "分享的文本"
-        val imageUrl = "https://cdn.uneed.com/download/box_string200810.jpg"
-        val videoUrl =
-            "https://cdn.uneed.com/download/0bf2oeaaiaaa4yaob6igj5pva4odaryqabaa.f10003.mp4"
-        val pageUrl = "https://www.rockmessenger.com/index.html"
-        val path = "pages/index/main?uid=124287543079337984&key=491209839083520000"
-        val title = "海非深64邀请你成为好友"
-        val miniCover = "https://cdn.uneed.com/web/icon/add_friends.png"
-        val linkTitle = "对话怼出新趣味，同屏玩法层出不穷，集齐交友、聊天、云相册的个性化社交app~"
-        val linkDesc = "与你App - 强大的聊天体验"
-        val urlGet = "https://uneed.com/get"
-        val imgLog = "https://cdn.uneed.com/logo_box.png"
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         GlobalScope.launch {
@@ -114,10 +102,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     testShareQZoneLink(urlGet, linkTitle, linkDesc, imgLog)
                 }
                 btSystemText -> {
+                    systemText(text)
                 }
                 btSystemLocalImage -> {
+                    systemImage()
                 }
                 btSystemVideo -> {
+                    systemVideo()
                 }
 
             }
@@ -430,6 +421,37 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    private suspend fun systemText(text: String) {
+        YuniShare.share(
+            this@MainActivity,
+            ShareChannel.System,
+            InnerShareParams.buildSystemText().text(text).build()
+        ).apply {
+            log("share result: $this")
+        }
+    }
+
+    private suspend fun systemImage() {
+        val pickImage = pickImage() ?: return
+        YuniShare.share(
+            this@MainActivity,
+            ShareChannel.System,
+            InnerShareParams.buildSystemImage().imagePath(pickImage).build()
+        ).apply {
+            log("share result: $this")
+        }
+    }
+
+    private suspend fun systemVideo() {
+        val pickVideo = pickVideo() ?: return
+        YuniShare.share(
+            this@MainActivity,
+            ShareChannel.System,
+            InnerShareParams.buildSystemVideo().videoPath(pickVideo).build()
+        ).apply {
+            log("share result: $this")
+        }
+    }
 
     private suspend fun downloadFile(path: String, url: String): String? {
         val download = DownloadUtils.download(url, path)

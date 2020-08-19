@@ -4,6 +4,9 @@ import com.tikoua.share.qq.QQImageBuilder
 import com.tikoua.share.qq.QQLinkBuilder
 import com.tikoua.share.qq.QQTextBuilder
 import com.tikoua.share.qq.QQVideoBuilder
+import com.tikoua.share.system.SystemImageBuilder
+import com.tikoua.share.system.SystemTextBuilder
+import com.tikoua.share.system.SystemVideoBuilder
 import com.tikoua.share.wechat.*
 
 /**
@@ -46,6 +49,18 @@ class InnerShareParams {
 
         fun buildQQLink(): QQLinkBuilder {
             return QQLinkBuilder()
+        }
+
+        fun buildSystemText(): SystemTextBuilder {
+            return SystemTextBuilder()
+        }
+
+        fun buildSystemImage(): SystemImageBuilder {
+            return SystemImageBuilder()
+        }
+
+        fun buildSystemVideo(): SystemVideoBuilder {
+            return SystemVideoBuilder()
         }
     }
 
