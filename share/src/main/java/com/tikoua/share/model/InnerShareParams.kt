@@ -1,6 +1,7 @@
 package com.tikoua.share.model
 
 import com.tikoua.share.qq.QQImageBuilder
+import com.tikoua.share.qq.QQLinkBuilder
 import com.tikoua.share.qq.QQTextBuilder
 import com.tikoua.share.qq.QQVideoBuilder
 import com.tikoua.share.wechat.*
@@ -41,6 +42,10 @@ class InnerShareParams {
 
         fun buildQQVideo(): QQVideoBuilder {
             return QQVideoBuilder()
+        }
+
+        fun buildQQLink(): QQLinkBuilder {
+            return QQLinkBuilder()
         }
     }
 

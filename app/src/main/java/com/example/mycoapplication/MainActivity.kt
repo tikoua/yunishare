@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.webkit.MimeTypeMap
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mycoapplication.utils.DownloadUtils
@@ -19,7 +20,7 @@ import java.io.File
 import java.io.FileInputStream
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val text = "分享的文本"
@@ -49,65 +50,81 @@ class MainActivity : AppCompatActivity() {
             edt.setText(null)
             tvResult.text = null
         }
-        btWechatFriendText.setOnClickListener {
-            GlobalScope.launch {
-                testShareWechatFriendText(text)
-            }
-        }
-        btWechatFriendImage.setOnClickListener {
-            GlobalScope.launch {
-                testShareWechatFriendImage(imageUrl)
-            }
-        }
-        btWechatFriendVideo.setOnClickListener {
-            GlobalScope.launch {
-                testShareWechatFriendVideo(videoUrl)
-            }
-        }
-        btWechatFriendMiniProgram.setOnClickListener {
-            GlobalScope.launch {
-                testShareWechatFriendMiniprogram(pageUrl, path, title, miniCover)
-            }
-        }
-        btWechatFriendLink.setOnClickListener {
-            GlobalScope.launch {
-                testShareWechatFriendLink(urlGet, linkTitle, linkDesc, imgLog)
-            }
-        }
 
-        btWechatMomentImage.setOnClickListener {
-            GlobalScope.launch {
-                testShareWechatMomentImage(imageUrl)
-            }
-        }
-        btWechatMomentLink.setOnClickListener {
-            GlobalScope.launch {
-                testShareWechatMomentLink(urlGet, linkTitle, linkDesc, imgLog)
-            }
-        }
-
-        btQQText.setOnClickListener {
-            GlobalScope.launch {
-                testShareQQText(text)
-            }
-        }
-        btQQLocalImage.setOnClickListener {
-            GlobalScope.launch {
-                testShareQQImage(imageUrl)
-            }
-        }
-        btQQLink.setOnClickListener {
-            GlobalScope.launch {
-                testShareQQRemoteImage(imageUrl)
-            }
-        }
-        btQQVideo.setOnClickListener {
-            GlobalScope.launch {
-                testShareQQRemoteVideo(videoUrl)
-            }
-        }
+        btWechatFriendImage.setOnClickListener(this)
+        btWechatFriendVideo.setOnClickListener(this)
+        btWechatFriendMiniProgram.setOnClickListener(this)
+        btWechatFriendLink.setOnClickListener(this)
+        btWechatMomentImage.setOnClickListener(this)
+        btWechatMomentLink.setOnClickListener(this)
+        btQQText.setOnClickListener(this)
+        btQQLocalImage.setOnClickListener(this)
+        btQQVideo.setOnClickListener(this)
+        btQQLink.setOnClickListener(this)
+        btQZoneText.setOnClickListener(this)
+        btQZoneLocalImage.setOnClickListener(this)
+        btQZoneVideo.setOnClickListener(this)
+        btQZoneLink.setOnClickListener(this)
+        btSystemText.setOnClickListener(this)
+        btSystemLocalImage.setOnClickListener(this)
+        btSystemVideo.setOnClickListener(this)
 
         YuniShare.init(this)
+    }
+
+    override fun onClick(v: View?) {
+        val text = "分享的文本"
+        val imageUrl = "https://cdn.uneed.com/download/box_string200810.jpg"
+        val videoUrl =
+            "https://cdn.uneed.com/download/0bf2oeaaiaaa4yaob6igj5pva4odaryqabaa.f10003.mp4"
+        val pageUrl = "https://www.rockmessenger.com/index.html"
+        val path = "pages/index/main?uid=124287543079337984&key=491209839083520000"
+        val title = "海非深64邀请你成为好友"
+        val miniCover = "https://cdn.uneed.com/web/icon/add_friends.png"
+        val linkTitle = "与你App - 强大的聊天体验"
+        val linkDesc = "对话怼出新趣味，同屏玩法层出不穷，集齐交友、聊天、云相册的个性化社交app~"
+        val urlGet = "https://uneed.com/get"
+        val imgLog = "https://cdn.uneed.com/logo_box.png"
+        GlobalScope.launch {
+            when (v) {
+                btWechatFriendText -> testShareWechatFriendText(text)
+                btWechatFriendImage -> testShareWechatFriendImage(imageUrl)
+                btWechatFriendVideo -> testShareWechatFriendVideo(videoUrl)
+                btWechatFriendMiniProgram -> testShareWechatFriendMiniprogram(
+                    pageUrl,
+                    path,
+                    title,
+                    miniCover
+                )
+                btWechatFriendLink -> testShareWechatFriendLink(urlGet, linkTitle, linkDesc, imgLog)
+                btWechatMomentImage -> testShareWechatMomentImage(imageUrl)
+                btWechatMomentLink -> testShareWechatMomentLink(urlGet, linkTitle, linkDesc, imgLog)
+                btQQText -> testShareQQText(text)
+                btQQLocalImage -> {
+                    testShareQQImage(imageUrl)
+                }
+                btQQVideo -> {
+                    testShareQQLocalVideo()
+                }
+                btQQLink -> testShareQQLink(urlGet, linkTitle, linkDesc, imgLog)
+                btQZoneText -> {
+                }
+                btQZoneLocalImage -> {
+                }
+                btQZoneVideo -> {
+                }
+                btQZoneLink -> {
+                    testShareQZoneLink(urlGet, linkTitle, linkDesc, imgLog)
+                }
+                btSystemText -> {
+                }
+                btSystemLocalImage -> {
+                }
+                btSystemVideo -> {
+                }
+
+            }
+        }
     }
 
 
@@ -308,18 +325,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun testShareQQRemoteImage(imageUrl: String) {
+    private suspend fun testShareQQLink(
+        urlGet: String,
+        linkTitle: String,
+        linkDesc: String,
+        imgLog: String
+    ) {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.QQFriend,
-            InnerShareParams.buildQQImage().imageUrl(imageUrl).title("图片标题").desc("图片描述")
-                .appName("与你").build()
+            InnerShareParams.buildQQLink().title(linkTitle).desc(linkDesc).cover(imgLog)
+                .link(urlGet).build()
         ).apply {
             log("share result: $this")
         }
     }
 
-    private suspend fun testShareQQRemoteVideo(imageUrl: String) {
+    private suspend fun testShareQZoneLink(
+        urlGet: String,
+        linkTitle: String,
+        linkDesc: String,
+        imgLog: String
+    ) {
+        YuniShare.share(
+            this@MainActivity,
+            ShareChannel.QQZone,
+            InnerShareParams.buildQQLink().title(linkTitle).desc(linkDesc).cover(imgLog)
+                .link(urlGet).build()
+        ).apply {
+            log("share result: $this")
+        }
+    }
+
+    private suspend fun testShareQQLocalVideo() {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 log("testShareQQRemoteVideo 1")
@@ -402,5 +440,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 
 }
