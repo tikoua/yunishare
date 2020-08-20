@@ -2,10 +2,7 @@ package com.tikoua.share
 
 import android.app.Activity
 import android.content.Context
-import com.tikoua.share.model.InnerShareParams
-import com.tikoua.share.model.ShareChannel
-import com.tikoua.share.model.ShareEc
-import com.tikoua.share.model.ShareResult
+import com.tikoua.share.model.*
 import com.tikoua.share.platform.*
 
 /**
@@ -31,13 +28,23 @@ object YuniShare {
 
     suspend fun share(
         activity: Activity,
-        type: ShareChannel,
+        channel: ShareChannel,
         shareParams: InnerShareParams
     ): ShareResult {
         val platform =
-            platforms.firstOrNull { it.support(type) }
+            platforms.firstOrNull { it.support(channel) }
                 ?: return ShareResult(ShareEc.Unsupported)
-        return platform.share(activity, type, shareParams)
+        return platform.share(activity, channel, shareParams)
+    }
+
+    suspend fun auth(
+        activity: Activity,
+        channel: ShareChannel
+    ): AuthResult {
+        val platform =
+            platforms.firstOrNull { it.support(channel) }
+                ?: return AuthResult(ShareEc.Unsupported)
+        return platform.auth(activity, channel)
     }
 }
 

@@ -77,6 +77,10 @@ class QQPlatform : Platform {
         } ?: ShareResult(ShareEc.NotInstall)
     }
 
+    override suspend fun auth(activity: Activity, channel: ShareChannel): AuthResult {
+        TODO("Not yet implemented")
+    }
+
 
     private fun getMeta(context: Context): QQShareMeta {
         var meta = meta

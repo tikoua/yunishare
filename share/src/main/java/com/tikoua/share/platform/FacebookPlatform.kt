@@ -2,6 +2,7 @@ package com.tikoua.share.platform
 
 import android.app.Activity
 import android.content.Context
+import com.tikoua.share.model.AuthResult
 import com.tikoua.share.model.InnerShareParams
 import com.tikoua.share.model.ShareChannel
 import com.tikoua.share.model.ShareResult
@@ -23,6 +24,10 @@ class FacebookPlatform : Platform {
         shareChannel: ShareChannel,
         shareParams: InnerShareParams
     ): ShareResult {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun auth(activity: Activity, channel: ShareChannel): AuthResult {
         TODO("Not yet implemented")
     }
 }

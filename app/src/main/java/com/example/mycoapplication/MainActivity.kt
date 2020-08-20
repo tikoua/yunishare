@@ -56,6 +56,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         btSystemText.setOnClickListener(this)
         btSystemLocalImage.setOnClickListener(this)
         btSystemVideo.setOnClickListener(this)
+        btAuthWechat.setOnClickListener(this)
+        btAuthQQ.setOnClickListener(this)
+        btAuthAlipay.setOnClickListener(this)
 
         YuniShare.init(this)
     }
@@ -110,7 +113,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 btSystemVideo -> {
                     systemVideo()
                 }
+                btAuthWechat -> {
+                    authWechat()
+                }
+                btAuthQQ -> {
 
+                }
+                btAuthAlipay -> {
+
+                }
             }
         }
     }
@@ -449,6 +460,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             ShareChannel.System,
             InnerShareParams.buildSystemVideo().videoPath(pickVideo).build()
         ).apply {
+            log("share result: $this")
+        }
+    }
+
+    private suspend fun authWechat() {
+        YuniShare.auth(this, ShareChannel.WechatFriend).apply {
             log("share result: $this")
         }
     }

@@ -63,6 +63,10 @@ class SystemPlatform : Platform {
         return ShareResult(ShareEc.Success)
     }
 
+    override suspend fun auth(activity: Activity, channel: ShareChannel): AuthResult {
+        TODO("Not yet implemented")
+    }
+
     private fun makeMedia(
         context: Context,
         intent: Intent,

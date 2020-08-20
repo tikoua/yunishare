@@ -9,10 +9,7 @@ import androidx.core.content.FileProvider
 import com.tencent.mm.opensdk.constants.Build
 import com.tencent.mm.opensdk.constants.ConstantsAPI
 import com.tencent.mm.opensdk.modelbase.BaseResp
-import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
-import com.tencent.mm.opensdk.modelmsg.WXMediaMessage
-import com.tencent.mm.opensdk.modelmsg.WXMiniProgramObject
-import com.tencent.mm.opensdk.modelmsg.WXWebpageObject
+import com.tencent.mm.opensdk.modelmsg.*
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import com.tikoua.share.model.*
@@ -68,6 +65,7 @@ class WechatPlatform : Platform {
         shareChannel: ShareChannel,
         shareParams: InnerShareParams
     ): ShareResult {
+        shareEc = null
         val wxAppSupportAPI = getApi(activity).wxAppSupportAPI
         if (wxAppSupportAPI == 0) {
             return ShareResult(ShareEc.NotInstall)
@@ -101,6 +99,18 @@ class WechatPlatform : Platform {
                 }
             }
         }
+    }
+
+    override suspend fun auth(activity: Activity, channel: ShareChannel): AuthResult {
+        val api = getApi(activity)
+        val tag = buildTransaction()
+        val req = SendAuth.Req().apply {
+            scope = "snsapi_userinfo"
+            state = tag
+        }
+        val sendReq = api.sendReq(req)
+        log("auth sendReq: $sendReq")
+        return AuthResult(ShareEc.Success)
     }
 
 
@@ -345,7 +355,6 @@ class WechatPlatform : Platform {
      * 使用sdk分享
      */
     private suspend fun shareBySdk(activity: Activity, req: SendMessageToWX.Req): ShareResult {
-        shareEc = null
         val hashCode = activity.hashCode()
         activity.application.registerActivityLifecycleCallbacks(object :
             ActivityLifecycleCallback() {

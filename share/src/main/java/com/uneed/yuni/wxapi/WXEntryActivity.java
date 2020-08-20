@@ -112,8 +112,11 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @Override
     public void onResp(BaseResp resp) {
         int errCode = resp.errCode;
+        Bundle bundle=new Bundle();
+        resp.toBundle(bundle);
+
         int type = resp.getType();
-        Log.d("MyHandler", "onResp  errCode: " + errCode + "  type: " + type);
+        Log.d("MyHandler", "onResp  errCode: " + errCode + "  type: " + type+  "resp: "+bundle.toString());
         Intent intent = new Intent(WXConst.ActionWXResp);
         intent.putExtra("ec", errCode);
         sendBroadcast(intent);
