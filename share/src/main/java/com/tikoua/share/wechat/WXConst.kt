@@ -6,4 +6,5 @@ package com.tikoua.share.wechat
  */
 object WXConst {
     const val ActionWXResp = "com.tikoua.share.wechat.action.wx.resp"
+    const val WXRespDataKey="wx_resp_data"
 }

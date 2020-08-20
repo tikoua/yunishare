@@ -12,6 +12,7 @@ import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
+import com.tikoua.share.utils.log
 import com.uneed.yuni.BuildConfig
 import java.lang.ref.WeakReference
 
@@ -61,7 +62,7 @@ abstract class WechatHandlerActivity : Activity(), IWXAPIEventHandler {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("MyHandler", "onCreate")
+        log("onCreate")
         val (appid) = this.loadWechatMeta()
         api = WXAPIFactory.createWXAPI(this, appid, false)
         handler = MyHandler(this)
@@ -75,7 +76,7 @@ abstract class WechatHandlerActivity : Activity(), IWXAPIEventHandler {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        Log.d("MyHandler", "onNewIntent")
+        log("onNewIntent")
         setIntent(intent)
         api.handleIntent(intent, this)
     }
@@ -86,7 +87,7 @@ abstract class WechatHandlerActivity : Activity(), IWXAPIEventHandler {
      * @param req
      */
     override fun onReq(req: BaseReq) {
-        Log.d("MyHandler", "onReq")
+        log("onReq")
         when (req.type) {
             ConstantsAPI.COMMAND_GETMESSAGE_FROM_WX -> {
             }
@@ -109,14 +110,11 @@ abstract class WechatHandlerActivity : Activity(), IWXAPIEventHandler {
         resp.toBundle(bundle)
         val type = resp.type
         if (BuildConfig.DEBUG) {
-            Log.d(
-                "MyHandler",
-                "onResp  errCode: " + errCode + "  type: " + type + "resp: " + bundle.toString()
-            )
+            log("onResp  errCode: $errCode  type: $type resp: $bundle")
         }
         val intent = Intent(WXConst.ActionWXResp)
         intent.putExtra("ec", errCode)
-        intent.putExtra("wx_resp", bundle)
+        intent.putExtra(WXConst.WXRespDataKey, bundle)
         sendBroadcast(intent)
         finish()
     }

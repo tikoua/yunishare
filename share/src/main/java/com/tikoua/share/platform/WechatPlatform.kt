@@ -49,7 +49,8 @@ class WechatPlatform : Platform {
                 log(intent?.dataString)
                 intent?.let {
                     val errCode = it.getIntExtra("ec", 0)
-                    log("errCode: $errCode")
+                    val respData = it.getBundleExtra(WXConst.WXRespDataKey)
+                    log("errCode: $errCode  respData: $respData")
                     shareEc = errCode
                 }
             }

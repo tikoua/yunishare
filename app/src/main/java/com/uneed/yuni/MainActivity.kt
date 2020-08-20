@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             tvResult.text = null
         }
 
+        btWechatFriendText.setOnClickListener(this)
         btWechatFriendImage.setOnClickListener(this)
         btWechatFriendVideo.setOnClickListener(this)
         btWechatFriendMiniProgram.setOnClickListener(this)
