@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.mycoapplication">
+    package="com.uneed.yuni">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <application
@@ -34,7 +34,7 @@
             android:value="KEYGQ671M0Bm1mOJzpD" />
 
 
-        <activity android:name=".MainActivity">
+        <activity android:name="com.uneed.yuni.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

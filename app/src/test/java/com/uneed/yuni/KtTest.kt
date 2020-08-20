@@ -1,9 +1,6 @@
-package com.example.mycoapplication
+package com.uneed.yuni
 
-import android.net.Uri
 import org.junit.Test
-import java.net.URI
-import java.net.URL
 import java.net.URLDecoder
 import java.net.URLEncoder
 

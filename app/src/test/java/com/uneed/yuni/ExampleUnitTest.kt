@@ -1,4 +1,4 @@
-package com.example.mycoapplication
+package com.uneed.yuni
 
 import kotlinx.coroutines.*
 import org.junit.Assert.assertEquals

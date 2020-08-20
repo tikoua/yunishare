@@ -7,7 +7,7 @@
     android:background="@android:color/white"
     tools:context=".MainActivity">
 
-    <com.example.mycoapplication.YuniDownloadProgressView
+    <com.uneed.yuni.YuniDownloadProgressView
         android:id="@+id/pv"
         android:layout_width="100dp"
         android:layout_height="100dp"

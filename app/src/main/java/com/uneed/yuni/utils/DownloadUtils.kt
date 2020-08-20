@@ -1,4 +1,4 @@
-package com.example.mycoapplication.utils
+package com.uneed.yuni.utils
 
 import com.tikoua.share.utils.log
 import kotlinx.coroutines.Dispatchers
