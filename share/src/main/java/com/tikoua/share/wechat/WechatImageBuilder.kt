@@ -1,6 +1,6 @@
 package com.tikoua.share.wechat
 
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
 
 
@@ -19,12 +19,12 @@ class WechatImageBuilder() {
         return this
     }
 
-    fun build(): InnerShareParams {
+    fun build(): ShareParams {
         val path = imagePath
         if (path.isNullOrEmpty()) {
             throw Exception("imagePath can not be null")
         }
-        return InnerShareParams().apply {
+        return ShareParams().apply {
             this.imagePath = path
             type = ShareType.Image.type
         }

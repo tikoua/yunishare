@@ -3,7 +3,7 @@ package com.tikoua.share.platform
 import android.app.Activity
 import android.content.Context
 import com.tikoua.share.model.AuthResult
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareChannel
 import com.tikoua.share.model.ShareResult
 
@@ -28,7 +28,7 @@ interface Platform {
     suspend fun share(
         activity: Activity,
         shareChannel: ShareChannel,
-        shareParams: InnerShareParams
+        shareParams: ShareParams
     ): ShareResult
 
     suspend fun auth(

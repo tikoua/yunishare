@@ -1,6 +1,6 @@
 package com.tikoua.share.qq
 
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
 
 /**
@@ -38,8 +38,8 @@ class QQImageBuilder {
         return this
     }
 
-    fun build(): InnerShareParams {
-        return InnerShareParams().apply {
+    fun build(): ShareParams {
+        return ShareParams().apply {
             this.type = ShareType.Image.type
             val path = this@QQImageBuilder.imagePath
             val url = this@QQImageBuilder.imageUrl

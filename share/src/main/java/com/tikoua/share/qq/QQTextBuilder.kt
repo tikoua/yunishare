@@ -1,6 +1,6 @@
 package com.tikoua.share.qq
 
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
 
 /**
@@ -27,14 +27,14 @@ class QQTextBuilder {
         return this
     }
 
-    fun build(): InnerShareParams {
+    fun build(): ShareParams {
         if (text.isNullOrEmpty()) {
             throw Exception("title can not be null")
         }
         if (targetUrl.isNullOrEmpty()) {
             throw Exception("targetUrl can not be null")
         }
-        return InnerShareParams().apply {
+        return ShareParams().apply {
             this.type = ShareType.Text.type
             this.text = this@QQTextBuilder.text
             this.desc = this@QQTextBuilder.desc

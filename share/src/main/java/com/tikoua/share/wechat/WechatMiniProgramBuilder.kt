@@ -1,7 +1,7 @@
 package com.tikoua.share.wechat
 
 import com.tencent.mm.opensdk.modelmsg.WXMiniProgramObject
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
 
 
@@ -86,12 +86,12 @@ class WechatMiniProgramBuilder() {
     }
 
 
-    fun build(): InnerShareParams {
+    fun build(): ShareParams {
         val path = path
         if (path.isNullOrEmpty()) {
             throw Exception("path can not be null")
         }
-        return InnerShareParams().apply {
+        return ShareParams().apply {
             this.type = ShareType.WechatMiniProgram.type
             this.miniProgramWebPageUrl = this@WechatMiniProgramBuilder.webPageUrl
             this.miniProgramUserName = this@WechatMiniProgramBuilder.userName

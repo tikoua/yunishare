@@ -25,7 +25,7 @@ class SystemPlatform : Platform {
     override suspend fun share(
         activity: Activity,
         shareChannel: ShareChannel,
-        shareParams: InnerShareParams
+        shareParams: ShareParams
     ): ShareResult {
         val type = shareParams.type
         val intent = Intent(Intent.ACTION_SEND)

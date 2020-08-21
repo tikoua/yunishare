@@ -1,6 +1,6 @@
 package com.tikoua.share.qq
 
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
 
 /**
@@ -44,8 +44,8 @@ class QQLinkBuilder {
     }
 
 
-    fun build(): InnerShareParams {
-        return InnerShareParams().apply {
+    fun build(): ShareParams {
+        return ShareParams().apply {
             this.type = ShareType.Link.type
             this.title = this@QQLinkBuilder.title
             this.desc = this@QQLinkBuilder.desc

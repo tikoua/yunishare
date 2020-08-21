@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.uneed.yuni.utils.DownloadUtils
 import com.lcw.library.imagepicker.ImagePicker
 import com.tikoua.share.YuniShare
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareChannel
 import com.tikoua.share.utils.log
 import com.tikoua.share.wechat.loadWechatMeta
@@ -140,7 +140,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this,
             ShareChannel.WechatFriend,
-            InnerShareParams.buildWechatText().text(text).build()
+            ShareParams.buildWechatText().text(text).build()
         ).apply {
             log("share result: $this")
         }
@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.WechatFriend,
-            InnerShareParams.buildWechatImage().imagePath(imagePath).build()
+            ShareParams.buildWechatImage().imagePath(imagePath).build()
         ).apply {
             log("share result: $this")
         }
@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.WechatFriend,
-            InnerShareParams.buildWechatVideo().videoPath(filePath).build()
+            ShareParams.buildWechatVideo().videoPath(filePath).build()
         ).apply {
             log("share result: $this")
         }
@@ -196,7 +196,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this,
             ShareChannel.WechatFriend,
-            InnerShareParams.buildMiniProgram()
+            ShareParams.buildMiniProgram()
                 .path(path)
                 .webPageUrl(pageUrl)
                 .thumbData(thumb)
@@ -229,7 +229,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.WechatFriend,
-            InnerShareParams.buildWechatLink().title(linkTitle).desc(linkDesc).thumbData(thumb)
+            ShareParams.buildWechatLink().title(linkTitle).desc(linkDesc).thumbData(thumb)
                 .link(urlGet).build()
         ).apply {
             log("share result: $this")
@@ -252,7 +252,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 YuniShare.share(
                     this@MainActivity,
                     ShareChannel.WechatMoment,
-                    InnerShareParams.buildWechatImage().imagePath(imagePath).build()
+                    ShareParams.buildWechatImage().imagePath(imagePath).build()
                 ).apply {
                     log("share result: $this")
                 }
@@ -283,7 +283,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.WechatMoment,
-            InnerShareParams.buildWechatLink().title(linkTitle).desc(linkDesc).thumbData(thumb)
+            ShareParams.buildWechatLink().title(linkTitle).desc(linkDesc).thumbData(thumb)
                 .link(urlGet).build()
         ).apply {
             log("share result: $this")
@@ -294,7 +294,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this,
             ShareChannel.QQFriend,
-            InnerShareParams.buildQQText().text(text)
+            ShareParams.buildQQText().text(text)
                 .targetUrl("https://www.baidu.com").build()
         ).apply {
             log("share result: $this")
@@ -314,7 +314,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             YuniShare.share(
                 this@MainActivity,
                 ShareChannel.QQFriend,
-                InnerShareParams.buildQQImage().imagePath(imagePath).build()
+                ShareParams.buildQQImage().imagePath(imagePath).build()
             ).apply {
                 log("share result: $this")
             }
@@ -336,7 +336,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             YuniShare.share(
                 this@MainActivity,
                 ShareChannel.QQFriend,
-                InnerShareParams.buildQQVideo().videoPath(imagePath).build()
+                ShareParams.buildQQVideo().videoPath(imagePath).build()
             ).apply {
                 log("share result: $this")
             }
@@ -354,7 +354,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.QQFriend,
-            InnerShareParams.buildQQLink().title(linkTitle).desc(linkDesc).cover(imgLog)
+            ShareParams.buildQQLink().title(linkTitle).desc(linkDesc).cover(imgLog)
                 .link(urlGet).build()
         ).apply {
             log("share result: $this")
@@ -365,7 +365,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this,
             ShareChannel.QQZone,
-            InnerShareParams.buildQQText().text(text)
+            ShareParams.buildQQText().text(text)
                 .targetUrl("https://www.baidu.com").build()
         ).apply {
             log("share result: $this")
@@ -385,7 +385,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             YuniShare.share(
                 this@MainActivity,
                 ShareChannel.QQZone,
-                InnerShareParams.buildQQImage().imagePath(imagePath).build()
+                ShareParams.buildQQImage().imagePath(imagePath).build()
             ).apply {
                 log("share result: $this")
             }
@@ -408,7 +408,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             YuniShare.share(
                 this@MainActivity,
                 ShareChannel.QQZone,
-                InnerShareParams.buildQQVideo().videoPath(imagePath).build()
+                ShareParams.buildQQVideo().videoPath(imagePath).build()
             ).apply {
                 log("share result: $this")
             }
@@ -426,7 +426,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.QQZone,
-            InnerShareParams.buildQQLink().title(linkTitle).desc(linkDesc).cover(imgLog)
+            ShareParams.buildQQLink().title(linkTitle).desc(linkDesc).cover(imgLog)
                 .link(urlGet).build()
         ).apply {
             log("share result: $this")
@@ -437,7 +437,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.System,
-            InnerShareParams.buildSystemText().text(text).build()
+            ShareParams.buildSystemText().text(text).build()
         ).apply {
             log("share result: $this")
         }
@@ -448,7 +448,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.System,
-            InnerShareParams.buildSystemImage().imagePath(pickImage).build()
+            ShareParams.buildSystemImage().imagePath(pickImage).build()
         ).apply {
             log("share result: $this")
         }
@@ -459,7 +459,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this@MainActivity,
             ShareChannel.System,
-            InnerShareParams.buildSystemVideo().videoPath(pickVideo).build()
+            ShareParams.buildSystemVideo().videoPath(pickVideo).build()
         ).apply {
             log("share result: $this")
         }

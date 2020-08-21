@@ -49,7 +49,7 @@ class QQPlatform : Platform {
     override suspend fun share(
         activity: Activity,
         shareChannel: ShareChannel,
-        shareParams: InnerShareParams
+        shareParams: ShareParams
     ): ShareResult {
         return tencentClient?.let {
             val qqInstalled = it.isQQInstalled(activity)
@@ -121,7 +121,7 @@ class QQPlatform : Platform {
     private suspend fun shareImage(
         activity: Activity,
         channel: ShareChannel,
-        shareParams: InnerShareParams
+        shareParams: ShareParams
     ): ShareResult {
         val imagePath = shareParams.imagePath
         val checkEmpty = imagePath.checkEmpty("imagePath")
@@ -152,7 +152,7 @@ class QQPlatform : Platform {
     private suspend fun shareVideo(
         activity: Activity,
         channel: ShareChannel,
-        shareParams: InnerShareParams
+        shareParams: ShareParams
     ): ShareResult {
         val imagePath = shareParams.videoPath
         val checkEmpty = imagePath.checkEmpty("videoPath")
@@ -182,7 +182,7 @@ class QQPlatform : Platform {
     private suspend fun shareLink(
         activity: Activity,
         channel: ShareChannel,
-        shareParams: InnerShareParams
+        shareParams: ShareParams
     ): ShareResult {
         val title = shareParams.title
         val desc = shareParams.desc

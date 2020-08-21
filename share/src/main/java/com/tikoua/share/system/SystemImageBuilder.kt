@@ -1,6 +1,6 @@
 package com.tikoua.share.system
 
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
 
 /**
@@ -14,8 +14,8 @@ class SystemImageBuilder {
         return this
     }
 
-    fun build(): InnerShareParams {
-        return InnerShareParams().apply {
+    fun build(): ShareParams {
+        return ShareParams().apply {
             type = ShareType.Image.type
             imagePath = this@SystemImageBuilder.imagePath
         }

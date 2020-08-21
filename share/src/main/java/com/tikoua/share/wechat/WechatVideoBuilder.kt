@@ -1,6 +1,6 @@
 package com.tikoua.share.wechat
 
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
 
 
@@ -20,8 +20,8 @@ class WechatVideoBuilder() {
     }
 
 
-    fun build(): InnerShareParams {
-        return InnerShareParams().apply {
+    fun build(): ShareParams {
+        return ShareParams().apply {
             this.videoPath = this@WechatVideoBuilder.videoPath
             type = ShareType.Video.type
         }

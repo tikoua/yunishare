@@ -1,6 +1,6 @@
 package com.tikoua.share.wechat
 
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
 
 
@@ -37,8 +37,8 @@ class WechatLinkBuilder() {
         return this
     }
 
-    fun build(): InnerShareParams {
-        return InnerShareParams().apply {
+    fun build(): ShareParams {
+        return ShareParams().apply {
             this.type = ShareType.Link.type
             this.title = this@WechatLinkBuilder.title
             this.desc = this@WechatLinkBuilder.desc

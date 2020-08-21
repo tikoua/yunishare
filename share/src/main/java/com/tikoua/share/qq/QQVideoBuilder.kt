@@ -1,6 +1,6 @@
 package com.tikoua.share.qq
 
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
 
 /**
@@ -14,8 +14,8 @@ class QQVideoBuilder {
         return this
     }
 
-    fun build(): InnerShareParams {
-        return InnerShareParams().apply {
+    fun build(): ShareParams {
+        return ShareParams().apply {
             this.type = ShareType.Video.type
             this.videoPath = this@QQVideoBuilder.videoPath
         }

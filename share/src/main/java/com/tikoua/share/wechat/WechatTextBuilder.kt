@@ -1,6 +1,6 @@
 package com.tikoua.share.wechat
 
-import com.tikoua.share.model.InnerShareParams
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
 
 
@@ -15,12 +15,12 @@ class WechatTextBuilder() {
         return this
     }
 
-    fun build(): InnerShareParams {
+    fun build(): ShareParams {
         val text = text
         if (text.isNullOrEmpty()) {
             throw Exception("text can not be null")
         }
-        return InnerShareParams().apply {
+        return ShareParams().apply {
             this.type = ShareType.Text.type
             this.text = text
         }

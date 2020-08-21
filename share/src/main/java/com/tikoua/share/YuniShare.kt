@@ -29,7 +29,7 @@ object YuniShare {
     suspend fun share(
         activity: Activity,
         channel: ShareChannel,
-        shareParams: InnerShareParams
+        shareParams: ShareParams
     ): ShareResult {
         val platform =
             platforms.firstOrNull { it.support(channel) }

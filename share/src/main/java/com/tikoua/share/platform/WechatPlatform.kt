@@ -77,7 +77,7 @@ class WechatPlatform : Platform {
     override suspend fun share(
         activity: Activity,
         shareChannel: ShareChannel,
-        shareParams: InnerShareParams
+        shareParams: ShareParams
     ): ShareResult {
         val wxAppSupportAPI = getApi(activity).wxAppSupportAPI
         if (wxAppSupportAPI == 0) {
@@ -167,7 +167,7 @@ class WechatPlatform : Platform {
      */
     private fun getShareMiniProgramReq(
         activity: Activity,
-        shareParams: InnerShareParams
+        shareParams: ShareParams
     ): SendMessageToWX.Req {
         val pageUrl = shareParams.miniProgramWebPageUrl
         val miniProgramPath = shareParams.miniProgramPath
@@ -194,7 +194,7 @@ class WechatPlatform : Platform {
      */
     private fun shareText(
         activity: Activity,
-        shareParams: InnerShareParams,
+        shareParams: ShareParams,
         shareChannel: ShareChannel
     ): ShareResult {
         //不支持分享纯文本到朋友圈
@@ -211,7 +211,7 @@ class WechatPlatform : Platform {
      */
     private fun shareImage(
         activity: Activity,
-        shareParams: InnerShareParams,
+        shareParams: ShareParams,
         shareChannel: ShareChannel
     ): ShareResult {
         val imagePath = shareParams.imagePath!!
@@ -225,7 +225,7 @@ class WechatPlatform : Platform {
      */
     private fun shareVideo(
         activity: Activity,
-        shareParams: InnerShareParams,
+        shareParams: ShareParams,
         shareChannel: ShareChannel
     ): ShareResult {
         //不支持分享视频到朋友圈
@@ -243,7 +243,7 @@ class WechatPlatform : Platform {
      */
     private suspend fun shareMiniProgram(
         activity: Activity,
-        shareParams: InnerShareParams,
+        shareParams: ShareParams,
         shareChannel: ShareChannel
     ): ShareResult {
         //小程序不支持分享到朋友圈
@@ -280,7 +280,7 @@ class WechatPlatform : Platform {
      */
     private suspend fun shareLink(
         activity: Activity,
-        shareParams: InnerShareParams,
+        shareParams: ShareParams,
         shareChannel: ShareChannel
     ): ShareResult {
         val title = shareParams.title
