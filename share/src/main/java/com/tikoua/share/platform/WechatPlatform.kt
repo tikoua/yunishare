@@ -23,8 +23,10 @@ import com.tikoua.share.wechat.WechatShareMeta
 import com.tikoua.share.wechat.bean.WeChatShareRespData
 import com.tikoua.share.wechat.bean.WechatAccessTokenData
 import com.tikoua.share.wechat.bean.WechatAuthCodeRespData
+import com.tikoua.share.wechat.bean.WechatUserInfo
 import com.tikoua.share.wechat.loadWechatMeta
 import kotlinx.coroutines.*
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.util.*
@@ -142,7 +144,21 @@ class WechatPlatform : Platform {
         val authCode = codeResp.authCode!!
         val accessToken = getAccessToken(activity, authCode)
         log("accessToken: $accessToken")
-        return AuthResult(ShareEc.Success)
+        if (accessToken == null || accessToken.accessToken.isEmpty() || accessToken.openid.isEmpty()) {
+            return AuthResult(ShareEc.AuthAccessTokenError)
+        }
+        val userInfo = getUserInfo(accessToken.accessToken, accessToken.openid)
+        log("userInfo: ${userInfo}")
+        if (userInfo?.nickname.isNullOrEmpty()) {
+            val ec = userInfo?.errcode
+            val em = userInfo?.errmsg
+            var msg: String? = null
+            if (ec != null || em != null) {
+                msg = "error code: $ec  error msg: $em"
+            }
+            return AuthResult(ShareEc.AuthUserInfoError, msg)
+        }
+        return AuthResult(ec = ShareEc.Success, authData = userInfo)
     }
 
 
@@ -543,6 +559,9 @@ class WechatPlatform : Platform {
         }
     }
 
+    /**
+     * 微信授权第二步:获取accesstoken
+     */
     private suspend fun getAccessToken(activity: Activity, code: String): WechatAccessTokenData? {
         val meta = getMeta(activity)
         val appid = meta.appid
@@ -579,6 +598,49 @@ class WechatPlatform : Platform {
                     errmsg
                 )
             return tokenData
+        }
+        return null
+    }
+
+    /**
+     * 微信授权第三部:获取用户信息
+     */
+    private suspend fun getUserInfo(accessToken: String, openid: String): WechatUserInfo? {
+        val url =
+            "https://api.weixin.qq.com/sns/userinfo?access_token=${accessToken}&openid=${openid}"
+        val get = withContext(Dispatchers.IO) {
+            UrlUtils.get(url)
+        }
+        if (get != null) {
+            val respStr = String(get)
+            log("getUserInfo: data: $respStr ")
+            val json = JSONObject(respStr)
+            val respOpenid: String? = json.optString("openid")
+            val nickname: String? = json.optString("nickname")
+            val sex: Int? = json.optInt("sex")
+            val language: String? = json.optString("language")
+            val city: String? = json.optString("city")
+            val province: String? = json.optString("province")
+            val country: String? = json.optString("country")
+            val headimgurl: String? = json.optString("headimgurl")
+            val privilege: JSONArray? = json.optJSONArray("privilege")
+            val unionid: String? = json.optString("unionid")
+            val ec: Int? = json.optInt("errcode")
+            val em: String? = json.optString("errmsg")
+            return WechatUserInfo(
+                respOpenid,
+                nickname,
+                sex,
+                language,
+                city,
+                province,
+                country,
+                headimgurl,
+                privilege,
+                unionid,
+                ec,
+                em
+            )
         }
         return null
     }
