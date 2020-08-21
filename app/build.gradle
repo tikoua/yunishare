@@ -9,14 +9,14 @@ android {
         release {
             keyAlias 'releasekey'
             keyPassword 'uneedgame'
-            storeFile file('signture/releasekey.jks')
+            storeFile file('../../signture/releasekey.jks')
             storePassword 'uneedgame'
             v2SigningEnabled true
         }
         debug {
             keyAlias 'releasekey'
             keyPassword 'uneedgame'
-            storeFile file('signture/releasekey.jks')
+            storeFile file('../../signture/releasekey.jks')
             storePassword 'uneedgame'
             v2SigningEnabled true
         }
