@@ -15,10 +15,10 @@ fun Context.loadQQMeta(): QQShareMeta {
         PackageManager.GET_META_DATA
     )
     val metaData = appInfo.metaData
-    val appid = metaData.getInt("qq_appid").toString()
+    val appid = metaData.getString("qq_appid")
     val appKey = metaData.getString("qq_app_key")
     log("appid: $appid   appKey: $appKey")
-    if (appid.isEmpty() || appKey.isNullOrEmpty()) {
+    if (appid.isNullOrEmpty() || appKey.isNullOrEmpty()) {
         throw Exception("appid or appKey is null")
     }
     return QQShareMeta(appid, appKey)
