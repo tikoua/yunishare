@@ -2,7 +2,6 @@ package com.tikoua.share.wechat
 
 import android.content.Context
 import android.content.pm.PackageManager
-import com.tikoua.share.qq.QQShareMeta
 
 /**
  *   created by dcl
@@ -16,9 +15,8 @@ fun Context.loadWechatMeta(): WechatShareMeta {
     val metaData = appInfo.metaData
     val appid = metaData.getString("wechat_appid")
     val appSecret = metaData.getString("wechat_secret")
-    val userName = metaData.getString("wechat_user_name")
-    if (appid.isNullOrEmpty() || appSecret.isNullOrEmpty() || userName.isNullOrEmpty()) {
-        throw Exception("appid , appSecret or userName is null")
+    if (appid.isNullOrEmpty() || appSecret.isNullOrEmpty()) {
+        throw Exception("appid or appSecret  is null")
     }
-    return WechatShareMeta(appid, appSecret, userName)
+    return WechatShareMeta(appid, appSecret)
 }

@@ -2,18 +2,18 @@ package com.uneed.yuni
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.webkit.MimeTypeMap
 import androidx.appcompat.app.AppCompatActivity
-import com.uneed.yuni.utils.DownloadUtils
 import com.lcw.library.imagepicker.ImagePicker
 import com.tikoua.share.YuniShare
-import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareChannel
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.utils.log
-import com.tikoua.share.wechat.loadWechatMeta
+import com.uneed.yuni.utils.DownloadUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -182,17 +182,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         title: String,
         miniCover: String
     ) {
-        val filePath = getFilePath("save/img/thumbcover.jpg", miniCover)
-        val thumb = filePath?.let {
-            withContext(Dispatchers.IO) {
-                return@withContext FileInputStream(filePath).use { fis ->
-                    val bytes = ByteArray(fis.available())
-                    fis.read(bytes)
-                    return@use bytes
-                }
-            }
-        }
+        val thumb = DownloadUtils.downloadSmall(miniCover, 5000)
         log("thumb: ${thumb?.size}")
+        val appInfo = this.packageManager.getApplicationInfo(
+            this.packageName,
+            PackageManager.GET_META_DATA
+        )
+        val metaData = appInfo.metaData
+        val userName = metaData.getString("wechat_user_name")
         YuniShare.share(
             this,
             ShareChannel.WechatFriend,
@@ -200,7 +197,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .path(path)
                 .webPageUrl(pageUrl)
                 .thumbData(thumb)
-                .userName(loadWechatMeta().userName)
+                .userName(userName)
                 .title(title)
                 .build()
         ).apply {

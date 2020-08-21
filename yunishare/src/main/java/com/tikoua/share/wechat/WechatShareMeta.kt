@@ -6,6 +6,5 @@ package com.tikoua.share.wechat
  */
 data class WechatShareMeta(
     val appid: String,
-    val appSecret: String,
-    val userName: String
+    val appSecret: String
 )

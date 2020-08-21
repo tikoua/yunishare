@@ -19,6 +19,51 @@ import javax.net.ssl.*
  *   on 2020/8/13 5:47 PM
  */
 object DownloadUtils {
+    suspend fun downloadSmall(url: String, timeout: Long = 30000): ByteArray? {
+        return withTimeout(timeout) {
+            withContext(Dispatchers.IO) {
+                var byteArray: ByteArray? = null
+                try {
+                    val startTime = System.currentTimeMillis()
+                    log("DOWNLOAD", "startTime=$startTime")
+                    //下载函数
+                    val myURL = URL(url)
+                    trustAllHosts()
+                    val conn: URLConnection = myURL.openConnection()
+                    conn.connect()
+                    val fileSize: Int = conn.contentLength //根据响应获取文件大小
+                    if (fileSize <= 0) return@withContext null
+                    val byteList = mutableListOf<Byte>()
+                    val buf = ByteArray(1024)
+                    var downLoadFileSize = 0
+                    conn.getInputStream().use {
+                        do {
+                            //循环读取
+                            val numread: Int = it.read(buf)
+                            if (numread == -1) {
+                                break
+                            }
+                            for (i in 0 until numread) {
+                                byteList.add(buf[i])
+                            }
+                            downLoadFileSize += numread
+                            //更新进度条
+                        } while (true)
+                    }
+
+                    log("DOWNLOAD", "download success")
+                    log("DOWNLOAD", "totalTime=" + (System.currentTimeMillis() - startTime))
+                    byteArray = byteList.toByteArray()
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    log(tag = "DOWNLOAD", msg = "error: " + ex.message)
+                }
+                return@withContext byteArray
+            }
+
+        }
+    }
+
     suspend fun download(url: String, path: String): Boolean {
         return withTimeout(30000) {
             withContext(Dispatchers.IO) {
@@ -31,7 +76,7 @@ object DownloadUtils {
                     trustAllHosts()
                     val conn: URLConnection = myURL.openConnection()
                     conn.connect()
-                    val `is`: InputStream = conn.getInputStream()
+                    val inputStream: InputStream = conn.getInputStream()
                     val fileSize: Int = conn.getContentLength() //根据响应获取文件大小
                     if (fileSize <= 0) throw RuntimeException("无法获知文件大小 ")
                     val file = File(path)
@@ -64,7 +109,7 @@ object DownloadUtils {
                     var downLoadFileSize = 0
                     do {
                         //循环读取
-                        val numread: Int = `is`.read(buf)
+                        val numread: Int = inputStream.read(buf)
                         if (numread == -1) {
                             break
                         }
@@ -74,7 +119,7 @@ object DownloadUtils {
                     } while (true)
                     log("DOWNLOAD", "download success")
                     log("DOWNLOAD", "totalTime=" + (System.currentTimeMillis() - startTime))
-                    `is`.close()
+                    inputStream.close()
                     success = true
                 } catch (ex: Exception) {
                     ex.printStackTrace()
