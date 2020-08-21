@@ -16,22 +16,22 @@
 
         <meta-data
             android:name="wechat_appid"
-            android:value="wxf91e095d0f920de6" />
+            android:value="@string/wechat_appid" />
         <meta-data
             android:name="wechat_secret"
-            android:value="2ade2372586f900e77f8e3d20f96af6e" />
+            android:value="@string/wechat_secret" />
         <meta-data
             android:name="wechat_user_name"
-            android:value="gh_26fc36a531a8" />
+            android:value="@string/wechat_user_name" />
         <meta-data
             android:name="wechat_bypass_approval"
             android:value="false" />
         <meta-data
             android:name="qq_appid"
-            android:value="1106523076" />
+            android:value="@string/qq_appid" />
         <meta-data
             android:name="qq_app_key"
-            android:value="KEYGQ671M0Bm1mOJzpD" />
+            android:value="@string/qq_app_key" />
 
 
         <activity android:name="com.uneed.yuni.MainActivity">
@@ -57,7 +57,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="tencent1106523076" />
+                <data android:scheme="@string/tencent_auth_scheme" />
             </intent-filter>
         </activity>
         <activity
