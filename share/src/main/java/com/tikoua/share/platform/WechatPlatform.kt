@@ -3,6 +3,7 @@ package com.tikoua.share.platform
 import android.app.Activity
 import android.content.*
 import android.net.Uri
+import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
@@ -12,15 +13,22 @@ import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.modelmsg.*
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
+import com.tikoua.share.BuildConfig
 import com.tikoua.share.model.*
+import com.tikoua.share.utils.UrlUtils
 import com.tikoua.share.utils.checkEmpty
+import com.tikoua.share.utils.getIntOrNull
 import com.tikoua.share.wechat.WXConst
 import com.tikoua.share.wechat.WechatShareMeta
+import com.tikoua.share.wechat.bean.WeChatShareRespData
+import com.tikoua.share.wechat.bean.WechatAccessTokenData
+import com.tikoua.share.wechat.bean.WechatAuthCodeRespData
 import com.tikoua.share.wechat.loadWechatMeta
-import com.uneed.yuni.BuildConfig
 import kotlinx.coroutines.*
+import org.json.JSONObject
 import java.io.File
 import java.util.*
+import kotlin.coroutines.coroutineContext
 
 /**
  *   created by dcl
@@ -28,9 +36,9 @@ import java.util.*
  *   api.registerApp: 未安装app时返回false
  */
 class WechatPlatform : Platform {
+    private var respMap = mutableMapOf<String, Bundle>()
     private var meta: WechatShareMeta? = null
     private var api: IWXAPI? = null
-    private var shareEc: Int? = null
     override fun init(context: Context) {
         val api = getApi(context)
         val meta = getMeta(context)
@@ -46,12 +54,15 @@ class WechatPlatform : Platform {
         }, IntentFilter(ConstantsAPI.ACTION_REFRESH_WXAPP))
         context.registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                log(intent?.dataString)
                 intent?.let {
-                    val errCode = it.getIntExtra("ec", 0)
-                    val respData = it.getBundleExtra(WXConst.WXRespDataKey)
-                    log("errCode: $errCode  respData: $respData")
-                    shareEc = errCode
+                    val respData = it.getBundleExtra(WXConst.WXRespDataKey) ?: return@let
+                    if (BuildConfig.DEBUG) {
+                        respData.keySet().forEach {
+                            log("data: key: $it  value:${respData[it]}")
+                        }
+                    }
+                    val transaction = respData[WXConst.RespKeyTransaction] as String
+                    respMap[transaction] = respData
                 }
             }
         }, IntentFilter(WXConst.ActionWXResp))
@@ -66,7 +77,6 @@ class WechatPlatform : Platform {
         shareChannel: ShareChannel,
         shareParams: InnerShareParams
     ): ShareResult {
-        shareEc = null
         val wxAppSupportAPI = getApi(activity).wxAppSupportAPI
         if (wxAppSupportAPI == 0) {
             return ShareResult(ShareEc.NotInstall)
@@ -103,14 +113,35 @@ class WechatPlatform : Platform {
     }
 
     override suspend fun auth(activity: Activity, channel: ShareChannel): AuthResult {
-        val api = getApi(activity)
-        val tag = buildTransaction()
-        val req = SendAuth.Req().apply {
-            scope = "snsapi_userinfo"
-            state = tag
+        val wxAppSupportAPI = getApi(activity).wxAppSupportAPI
+        if (wxAppSupportAPI == 0) {
+            return AuthResult(ShareEc.NotInstall)
         }
-        val sendReq = api.sendReq(req)
-        log("auth sendReq: $sendReq")
+        val codeResp = getAuthCode(activity)
+        val authCodeWXEc = codeResp.wxEc
+        if (!codeResp.isSuccess()) {
+            val ec: Int
+            var em: String? = null
+            when (authCodeWXEc) {
+                BaseResp.ErrCode.ERR_USER_CANCEL -> {
+                    ec = ShareEc.Cancel
+                }
+                BaseResp.ErrCode.ERR_AUTH_DENIED -> {
+                    ec = ShareEc.AuthDenied
+                }
+                BaseResp.ErrCode.ERR_UNSUPPORT -> {
+                    ec = ShareEc.PlatformUnSupport
+                }
+                else -> {
+                    ec = ShareEc.Unknown
+                    em = "Unrecognizable error code"
+                }
+            }
+            return AuthResult(ec, em)
+        }
+        val authCode = codeResp.authCode!!
+        val accessToken = getAccessToken(activity, authCode)
+        log("accessToken: $accessToken")
         return AuthResult(ShareEc.Success)
     }
 
@@ -353,40 +384,66 @@ class WechatPlatform : Platform {
     }
 
     /**
-     * 使用sdk分享
+     * 当调用分享的页面resume之后1秒内，如果还没有收到微信的结果回调，则手动置为成功
      */
-    private suspend fun shareBySdk(activity: Activity, req: SendMessageToWX.Req): ShareResult {
-        val hashCode = activity.hashCode()
-        activity.application.registerActivityLifecycleCallbacks(object :
-            ActivityLifecycleCallback() {
-            override fun onActivityResumed(activity: Activity) {
-                if (hashCode == activity.hashCode()) {
-                    activity.application.unregisterActivityLifecycleCallbacks(this)
-                    GlobalScope.launch {
-                        delay(1000)
-                        if (shareEc == null) {
-                            //没返回错误码也当做成功
-                            shareEc = BaseResp.ErrCode.ERR_OK
+    private suspend fun waitUntilResume(activity: Activity): Boolean {
+        val context = coroutineContext
+        return suspendCancellableCoroutine { resum ->
+            val hashCode = activity.hashCode()
+            val listener = object :
+                ActivityLifecycleCallback() {
+                override fun onActivityResumed(activity: Activity) {
+                    if (hashCode == activity.hashCode()) {
+                        activity.application.unregisterActivityLifecycleCallbacks(this)
+                        GlobalScope.launch(context) {
+                            delay(1000)
+                            resum.resumeWith(Result.success(true))
                         }
                     }
                 }
             }
-        })
+            activity.application.registerActivityLifecycleCallbacks(listener)
+            resum.invokeOnCancellation {
+                activity.application.unregisterActivityLifecycleCallbacks(listener)
+            }
+        }
+    }
+
+    /**
+     * 使用sdk分享
+     */
+    private suspend fun shareBySdk(activity: Activity, req: SendMessageToWX.Req): ShareResult {
+        val transaction = req.transaction
         val sendReq = getApi(activity).sendReq(req)
         if (!sendReq) {
             return ShareResult(ShareEc.NotInstall)
         }
-        var resultEc = 0
-        while (true) {
-            val result = shareEc
-            if (result != null) {
-                resultEc = result
-                break
+        val result = withContext<WeChatShareRespData>(coroutineContext) {
+            val resumeResult = async {
+                return@async waitUntilResume(activity)
             }
-            Log.v("WechatPlatform", "wait ...")
-            delay(1000)
+            val sdkResult = async {
+                return@async waitSdkShareResult(transaction)
+            }
+            val resp: WeChatShareRespData
+            while (true) {
+                if (sdkResult.isCompleted) {
+                    resumeResult.cancel()
+                    resp = sdkResult.await()
+                    log("sdk 结果")
+                    break
+                }
+                if (resumeResult.isCompleted) {
+                    sdkResult.cancel()
+                    resp = WeChatShareRespData(BaseResp.ErrCode.ERR_OK)
+                    log("resume 结果")
+                    break
+                }
+            }
+            return@withContext resp
         }
-        val ec = when (resultEc) {
+
+        val ec = when (result.wxec) {
             BaseResp.ErrCode.ERR_OK -> {
                 ShareEc.Success
             }
@@ -404,6 +461,126 @@ class WechatPlatform : Platform {
             }
         }
         return ShareResult(ec)
+    }
+
+    private suspend fun waitSdkShareResult(transaction: String): WeChatShareRespData {
+        while (true) {
+            val resp = respMap.remove(transaction)
+            if (resp != null) {
+                val wxEc = (resp[WXConst.RespKeyErrorCode] as Int?) ?: BaseResp.ErrCode.ERR_OK
+                return WeChatShareRespData(wxEc)
+            }
+            Log.v("WechatPlatform", "wait ...")
+            delay(1000)
+        }
+    }
+
+    /**
+     * 微信授权的第一步:请求 CODE
+     */
+    private suspend fun getAuthCode(activity: Activity): WechatAuthCodeRespData {
+        val api = getApi(activity)
+        val transaction = buildTransaction()
+        val req = SendAuth.Req().apply {
+            scope = "snsapi_userinfo"
+            this.transaction = transaction
+        }
+
+        api.sendReq(req)
+        val result = withContext(coroutineContext) {
+            val resumeResult = async {
+                waitUntilResume(activity)
+            }
+            val sdkResult = async {
+                waitAuthResp(transaction)
+            }
+            val codeResp: WechatAuthCodeRespData
+            while (true) {
+                if (sdkResult.isCompleted) {
+                    resumeResult.cancel()
+                    codeResp = sdkResult.await()
+                    log("sdk 结果")
+                    break
+                }
+                if (resumeResult.isCompleted) {
+                    sdkResult.cancel()
+                    codeResp = WechatAuthCodeRespData(BaseResp.ErrCode.ERR_USER_CANCEL)
+                    log("resume 结果")
+                    break
+                }
+            }
+            return@withContext codeResp
+        }
+        return result
+    }
+
+    /**
+     * 等待并解析微信返回的数据
+     * 如果微信返回结果ec=ERR_OK,但是没有获取到code,则将返回的code修改为ERR_USER_CANCEL
+     */
+    private suspend fun waitAuthResp(transaction: String): WechatAuthCodeRespData {
+        while (true) {
+            val resp = respMap.remove(transaction)
+            if (resp != null) {
+                val wxEc = (resp[WXConst.RespKeyErrorCode] as Int?) ?: BaseResp.ErrCode.ERR_OK
+                val authUrl = resp[WXConst.RespKeyAuthUrl] as String?
+                val code = authUrl?.let {
+                    try {
+                        Uri.parse(it).getQueryParameter("code")
+                    } catch (error: Throwable) {
+                        null
+                    }
+                }
+                val fixWxEc = if (code.isNullOrEmpty()) {
+                    BaseResp.ErrCode.ERR_USER_CANCEL
+                } else {
+                    wxEc
+                }
+                return WechatAuthCodeRespData(fixWxEc, code)
+            }
+            Log.v("WechatPlatform", "wait ...")
+            delay(1000)
+        }
+    }
+
+    private suspend fun getAccessToken(activity: Activity, code: String): WechatAccessTokenData? {
+        val meta = getMeta(activity)
+        val appid = meta.appid
+        val secret = meta.appSecret
+        val url =
+            "https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${code}&grant_type=authorization_code"
+        val get = withContext(Dispatchers.IO) {
+            UrlUtils.get(url)
+        }
+        if (get != null) {
+            val respStr = String(get)
+            log("getAccessToken: data: $respStr ")
+            val json = JSONObject(respStr)
+            val accessToken = json.optString("access_token")
+            if (accessToken.isNullOrEmpty()) {
+                return null
+            }
+            val expiresIn = json.optString("expires_in")
+            val refreshToken = json.optString("refresh_token")
+            val openid = json.optString("openid")
+            val scope = json.optString("scope")
+            val unionid = json.optString("unionid")
+            val errcode = json.getIntOrNull("errcode")
+            val errmsg = json.optString("errmsg")
+            val tokenData =
+                WechatAccessTokenData(
+                    accessToken,
+                    expiresIn,
+                    refreshToken,
+                    openid,
+                    scope,
+                    unionid,
+                    errcode,
+                    errmsg
+                )
+            return tokenData
+        }
+        return null
     }
 }
 

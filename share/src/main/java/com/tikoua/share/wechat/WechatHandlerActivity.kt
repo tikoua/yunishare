@@ -12,8 +12,8 @@ import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
+import com.tikoua.share.BuildConfig
 import com.tikoua.share.utils.log
-import com.uneed.yuni.BuildConfig
 import java.lang.ref.WeakReference
 
 /**
@@ -110,10 +110,9 @@ abstract class WechatHandlerActivity : Activity(), IWXAPIEventHandler {
         resp.toBundle(bundle)
         val type = resp.type
         if (BuildConfig.DEBUG) {
-            log("onResp  errCode: $errCode  type: $type resp: $bundle")
+            log("onResp  errCode: $errCode  type: $type bundle: $bundle")
         }
         val intent = Intent(WXConst.ActionWXResp)
-        intent.putExtra("ec", errCode)
         intent.putExtra(WXConst.WXRespDataKey, bundle)
         sendBroadcast(intent)
         finish()
