@@ -21,7 +21,19 @@ object FileUtils {
             }
         }
         val sourceFile = File(source)
-        val file = File(dir, sourceFile.name)
+        var name = sourceFile.name
+        val hasSuffix = name.endsWith(".jpg", true) ||
+                name.endsWith(".jpeg", true) ||
+                name.endsWith(".png", true) ||
+                name.endsWith(".mp4", true)
+
+        if (!hasSuffix && !name.contains(".")) {
+            val fileType = MimeTypeUtils.getFileType(source)
+            if (!fileType.isNullOrEmpty()) {
+                name = "${name}.${fileType}"
+            }
+        }
+        val file = File(dir, name)
         return try {
             FileUtils.copy(FileInputStream(source), FileOutputStream(file))
             file.absolutePath
