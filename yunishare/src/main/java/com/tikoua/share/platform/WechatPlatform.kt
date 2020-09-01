@@ -340,7 +340,7 @@ class WechatPlatform : Platform {
         type: String
     ): Intent {
         val file = File(filePath)
-        val intent = Intent("android.intent.action.SEND")
+        val intent = Intent(Intent.ACTION_SEND)
         val uri: Uri
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -348,6 +348,7 @@ class WechatPlatform : Platform {
         } else {
             uri = Uri.fromFile(file)
         }
+
         intent.setDataAndType(uri, type)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.makePackage(shareChannel)

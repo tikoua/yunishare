@@ -12,7 +12,7 @@ import java.io.FileOutputStream
  */
 object FileUtils {
     fun copyToShareTemp(context: Context, source: String): String? {
-        val dir = File(context.cacheDir, "share/temp")
+        val dir = File(context.getExternalFilesDir(null), "share/temp")
         if (!dir.exists()) {
             dir.mkdirs()
         } else {
