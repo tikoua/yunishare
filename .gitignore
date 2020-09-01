@@ -15,3 +15,4 @@
 .idea
 app/signture
 secret_string.xml
+share/build
