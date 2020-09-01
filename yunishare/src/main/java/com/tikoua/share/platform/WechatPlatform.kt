@@ -15,6 +15,7 @@ import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import com.tikoua.share.BuildConfig
 import com.tikoua.share.model.*
+import com.tikoua.share.utils.FileUtils.copyToShareTemp
 import com.tikoua.share.utils.UrlUtils
 import com.tikoua.share.utils.checkEmpty
 import com.tikoua.share.utils.getIntOrNull
@@ -215,7 +216,11 @@ class WechatPlatform : Platform {
         shareChannel: ShareChannel
     ): ShareResult {
         val imagePath = shareParams.imagePath!!
-        val intent = makeWechatMediaIntent(activity, shareChannel, imagePath, "image/*")
+        val tempPath = copyToShareTemp(activity, imagePath)
+        if (tempPath.isNullOrEmpty()) {
+            return ShareResult(ShareEc.CopyFileFailed)
+        }
+        val intent = makeWechatMediaIntent(activity, shareChannel, tempPath, "image/*")
         activity.startActivity(intent)
         return ShareResult(ShareEc.Success)
     }
@@ -232,8 +237,12 @@ class WechatPlatform : Platform {
         if (shareChannel != ShareChannel.WechatFriend) {
             return ShareResult(ShareEc.PlatformUnSupport)
         }
-        val videoUrl = shareParams.videoPath!!
-        val intent = makeWechatMediaIntent(activity, shareChannel, videoUrl, "video/*")
+        val videoPath = shareParams.videoPath!!
+        val tempPath = copyToShareTemp(activity, videoPath)
+        if (tempPath.isNullOrEmpty()) {
+            return ShareResult(ShareEc.CopyFileFailed)
+        }
+        val intent = makeWechatMediaIntent(activity, shareChannel, tempPath, "video/*")
         activity.startActivity(intent)
         return ShareResult(ShareEc.Success)
     }

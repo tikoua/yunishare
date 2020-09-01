@@ -16,5 +16,6 @@ object ShareEc {
     const val PlatformError = 8     //第三方回调的onerror
     const val AuthAccessTokenError = 9     //授权时获取accesstoken失败
     const val AuthUserInfoError = 10     //授权时获取用户资料失败
+    const val CopyFileFailed = 11     //复制分享文件时失败
 
 }
