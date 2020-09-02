@@ -14,6 +14,10 @@ import com.tikoua.share.model.ShareChannel
 import com.tikoua.share.model.ShareParams
 import com.tikoua.share.utils.log
 import com.tikoua.share.wechat.*
+import com.tikoua.yunishare.qq.buildQQImage
+import com.tikoua.yunishare.qq.buildQQLink
+import com.tikoua.yunishare.qq.buildQQText
+import com.tikoua.yunishare.qq.buildQQVideo
 import com.uneed.yuni.utils.DownloadUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*

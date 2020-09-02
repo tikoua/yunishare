@@ -58,6 +58,7 @@ dependencies {
     implementation 'com.lcw.library:imagepicker:2.2.7'
     implementation project(path: ':yunishare')
     implementation project(path: ':yunishare_wechat')
+    implementation project(path: ':yunishare_qq')
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

@@ -1,4 +1,4 @@
-package com.tikoua.share.qq
+package com.tikoua.yunishare.qq
 
 /**
  *   created by dcl

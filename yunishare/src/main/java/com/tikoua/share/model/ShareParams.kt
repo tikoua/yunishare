@@ -1,9 +1,5 @@
 package com.tikoua.share.model
 
-import com.tikoua.share.qq.QQImageBuilder
-import com.tikoua.share.qq.QQLinkBuilder
-import com.tikoua.share.qq.QQTextBuilder
-import com.tikoua.share.qq.QQVideoBuilder
 import com.tikoua.share.system.SystemImageBuilder
 import com.tikoua.share.system.SystemTextBuilder
 import com.tikoua.share.system.SystemVideoBuilder
@@ -14,23 +10,6 @@ import com.tikoua.share.system.SystemVideoBuilder
  */
 class ShareParams {
     companion object {
-
-        fun buildQQText(): QQTextBuilder {
-            return QQTextBuilder()
-        }
-
-        fun buildQQImage(): QQImageBuilder {
-            return QQImageBuilder()
-        }
-
-        fun buildQQVideo(): QQVideoBuilder {
-            return QQVideoBuilder()
-        }
-
-        fun buildQQLink(): QQLinkBuilder {
-            return QQLinkBuilder()
-        }
-
         fun buildSystemText(): SystemTextBuilder {
             return SystemTextBuilder()
         }

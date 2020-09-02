@@ -1,3 +1,4 @@
+include ':yunishare_qq'
 include ':yunishare_wechat'
 include ':yunishare'
 rootProject.name='MyCoApplication'

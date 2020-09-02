@@ -1,4 +1,4 @@
-package com.tikoua.share.platform
+package com.tikoua.yunishare.qq
 
 import android.app.Activity
 import android.content.ComponentName
@@ -14,9 +14,9 @@ import com.tencent.connect.share.QzonePublish.PUBLISH_TO_QZONE_TYPE_PUBLISHMOOD
 import com.tencent.tauth.IUiListener
 import com.tencent.tauth.Tencent
 import com.tencent.tauth.UiError
+import com.tikoua.share.YuniShare
 import com.tikoua.share.model.*
-import com.tikoua.share.qq.QQShareMeta
-import com.tikoua.share.qq.loadQQMeta
+import com.tikoua.share.platform.Platform
 import com.tikoua.share.utils.checkEmpty
 import com.tikoua.share.utils.log
 import kotlinx.coroutines.GlobalScope
@@ -33,6 +33,7 @@ class QQPlatform : Platform {
     private var meta: QQShareMeta? = null
     private var tencentClient: Tencent? = null
     override fun init(context: Context) {
+        YuniShare.registerPlatform(this)
         tencentClient =
             Tencent.createInstance(
                 getMeta(context).appid,

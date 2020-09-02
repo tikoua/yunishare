@@ -9,7 +9,10 @@
             android:exported="false"
             tools:node="merge">
             <meta-data
-                android:name="com.tikoua.share.wechat.WechatInitializer"
+                android:name="com.tikoua.share.wechat.WechatPlatformInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="com.tikoua.yunishare.qq.QQPlatformInitializer"
                 android:value="androidx.startup" />
         </provider>
     </application>

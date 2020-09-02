@@ -1,4 +1,4 @@
-package com.tikoua.share.qq
+package com.tikoua.yunishare.qq
 
 import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareType
