@@ -2,6 +2,7 @@ package com.tikoua.share.wechat
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.tikoua.share.model.ShareParams
 
 /**
  *   created by dcl
@@ -19,4 +20,24 @@ fun Context.loadWechatMeta(): WechatShareMeta {
         throw Exception("appid or appSecret  is null")
     }
     return WechatShareMeta(appid, appSecret)
+}
+
+fun ShareParams.Companion.buildWechatText(): WechatTextBuilder {
+    return WechatTextBuilder()
+}
+
+fun ShareParams.Companion.buildWechatImage(): WechatImageBuilder {
+    return WechatImageBuilder()
+}
+
+fun ShareParams.Companion.buildWechatVideo(): WechatVideoBuilder {
+    return WechatVideoBuilder()
+}
+
+fun ShareParams.Companion.buildMiniProgram(): WechatMiniProgramBuilder {
+    return WechatMiniProgramBuilder()
+}
+
+fun ShareParams.Companion.buildWechatLink(): WechatLinkBuilder {
+    return WechatLinkBuilder()
 }

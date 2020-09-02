@@ -11,7 +11,6 @@ import com.tencent.connect.share.QQShare
 import com.tencent.connect.share.QQShare.SHARE_TO_QQ_TYPE_DEFAULT
 import com.tencent.connect.share.QzonePublish
 import com.tencent.connect.share.QzonePublish.PUBLISH_TO_QZONE_TYPE_PUBLISHMOOD
-import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.tauth.IUiListener
 import com.tencent.tauth.Tencent
 import com.tencent.tauth.UiError
@@ -248,7 +247,7 @@ class QQPlatform : Platform {
                         delay(500)
                         if (ec == null) {
                             //没返回错误码也当做成功
-                            ec = BaseResp.ErrCode.ERR_OK
+                            ec = ShareEc.Success
                         }
                     }
                 }

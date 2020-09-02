@@ -1,10 +1,7 @@
 package com.tikoua.share.utils
 
 import android.content.Context
-import android.os.FileUtils
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 
 /**
  *   created by dcl
@@ -35,9 +32,10 @@ object FileUtils {
         }
         val file = File(dir, name)
         return try {
-            FileUtils.copy(FileInputStream(source), FileOutputStream(file))
+            sourceFile.copyTo(file, true)
             file.absolutePath
         } catch (error: Throwable) {
+            error.printStackTrace()
             null
         }
     }

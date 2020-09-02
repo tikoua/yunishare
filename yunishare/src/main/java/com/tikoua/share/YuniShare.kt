@@ -1,9 +1,8 @@
 package com.tikoua.share
 
 import android.app.Activity
-import android.content.Context
 import com.tikoua.share.model.*
-import com.tikoua.share.platform.*
+import com.tikoua.share.platform.Platform
 
 /**
  *   created by dcl
@@ -11,19 +10,11 @@ import com.tikoua.share.platform.*
  */
 object YuniShare {
     private val platforms by lazy {
-        listOf(
-            WechatPlatform(),
-            QQPlatform(),
-            FacebookPlatform(),
-            TwitterPlatform(),
-            SystemPlatform()
-        )
+        mutableListOf<Platform>()
     }
 
-    fun init(context: Context) {
-        platforms.forEach {
-            it.init(context.applicationContext)
-        }
+    fun registerPlatform(platform: Platform) {
+        platforms.add(platform)
     }
 
     suspend fun share(

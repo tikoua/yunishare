@@ -8,10 +8,10 @@ import org.json.JSONObject
  */
 fun JSONObject.getIntOrNull(name: String): Int? {
     if (has(name)) {
-        try {
-            return getInt(name)
+        return try {
+            getInt(name)
         } catch (error: Throwable) {
-            return null
+            null
         }
     }
     return null

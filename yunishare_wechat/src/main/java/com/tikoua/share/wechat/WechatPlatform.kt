@@ -1,4 +1,4 @@
-package com.tikoua.share.platform
+package com.tikoua.share.wechat
 
 import android.app.Activity
 import android.content.*
@@ -14,18 +14,17 @@ import com.tencent.mm.opensdk.modelmsg.*
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import com.tikoua.share.BuildConfig
+import com.tikoua.share.YuniShare
 import com.tikoua.share.model.*
+import com.tikoua.share.platform.Platform
 import com.tikoua.share.utils.FileUtils.copyToShareTemp
 import com.tikoua.share.utils.UrlUtils
 import com.tikoua.share.utils.checkEmpty
 import com.tikoua.share.utils.getIntOrNull
-import com.tikoua.share.wechat.WXConst
-import com.tikoua.share.wechat.WechatShareMeta
 import com.tikoua.share.wechat.bean.WeChatShareRespData
 import com.tikoua.share.wechat.bean.WechatAccessTokenData
 import com.tikoua.share.wechat.bean.WechatAuthCodeRespData
 import com.tikoua.share.wechat.bean.WechatUserInfo
-import com.tikoua.share.wechat.loadWechatMeta
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -43,6 +42,7 @@ class WechatPlatform : Platform {
     private var meta: WechatShareMeta? = null
     private var api: IWXAPI? = null
     override fun init(context: Context) {
+        YuniShare.registerPlatform(this)
         val api = getApi(context)
         val meta = getMeta(context)
         val registerApp = api.registerApp(meta.appid)

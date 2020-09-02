@@ -13,6 +13,7 @@ import com.tikoua.share.YuniShare
 import com.tikoua.share.model.ShareChannel
 import com.tikoua.share.model.ShareParams
 import com.tikoua.share.utils.log
+import com.tikoua.share.wechat.*
 import com.uneed.yuni.utils.DownloadUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -60,8 +61,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         btAuthWechat.setOnClickListener(this)
         btAuthQQ.setOnClickListener(this)
         btAuthAlipay.setOnClickListener(this)
-
-        YuniShare.init(this)
     }
 
     override fun onClick(v: View?) {

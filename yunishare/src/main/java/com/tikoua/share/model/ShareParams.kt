@@ -7,7 +7,6 @@ import com.tikoua.share.qq.QQVideoBuilder
 import com.tikoua.share.system.SystemImageBuilder
 import com.tikoua.share.system.SystemTextBuilder
 import com.tikoua.share.system.SystemVideoBuilder
-import com.tikoua.share.wechat.*
 
 /**
  *   created by dcl
@@ -15,25 +14,6 @@ import com.tikoua.share.wechat.*
  */
 class ShareParams {
     companion object {
-        fun buildWechatText(): WechatTextBuilder {
-            return WechatTextBuilder()
-        }
-
-        fun buildWechatImage(): WechatImageBuilder {
-            return WechatImageBuilder()
-        }
-
-        fun buildWechatVideo(): WechatVideoBuilder {
-            return WechatVideoBuilder()
-        }
-
-        fun buildMiniProgram(): WechatMiniProgramBuilder {
-            return WechatMiniProgramBuilder()
-        }
-
-        fun buildWechatLink(): WechatLinkBuilder {
-            return WechatLinkBuilder()
-        }
 
         fun buildQQText(): QQTextBuilder {
             return QQTextBuilder()
