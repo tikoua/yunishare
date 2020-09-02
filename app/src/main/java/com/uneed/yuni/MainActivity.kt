@@ -12,6 +12,9 @@ import com.lcw.library.imagepicker.ImagePicker
 import com.tikoua.share.YuniShare
 import com.tikoua.share.model.ShareChannel
 import com.tikoua.share.model.ShareParams
+import com.tikoua.share.system.buildSystemImage
+import com.tikoua.share.system.buildSystemText
+import com.tikoua.share.system.buildSystemVideo
 import com.tikoua.share.utils.log
 import com.tikoua.share.wechat.*
 import com.tikoua.yunishare.qq.buildQQImage

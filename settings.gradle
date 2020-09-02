@@ -1,5 +1,6 @@
-include ':yunishare_qq'
-include ':yunishare_wechat'
+include ':system_share'
+include ':qq_share'
+include ':wechat_share'
 include ':yunishare'
 rootProject.name='MyCoApplication'
 include ':app'

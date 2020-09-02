@@ -2,9 +2,11 @@ package com.tikoua.share.platform
 
 import android.app.Activity
 import android.content.Context
+import androidx.annotation.CallSuper
+import com.tikoua.share.YuniShare
 import com.tikoua.share.model.AuthResult
-import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareChannel
+import com.tikoua.share.model.ShareParams
 import com.tikoua.share.model.ShareResult
 
 /**
@@ -15,7 +17,10 @@ interface Platform {
     /**
      * 各自平台的初始化操作
      */
-    fun init(context: Context)
+    @CallSuper
+    fun init(context: Context) {
+        YuniShare.registerPlatform(this)
+    }
 
     /**
      * 是否支持指定渠道的分享类型

@@ -1,8 +1,5 @@
 package com.tikoua.share.model
 
-import com.tikoua.share.system.SystemImageBuilder
-import com.tikoua.share.system.SystemTextBuilder
-import com.tikoua.share.system.SystemVideoBuilder
 
 /**
  *   created by dcl
@@ -10,17 +7,7 @@ import com.tikoua.share.system.SystemVideoBuilder
  */
 class ShareParams {
     companion object {
-        fun buildSystemText(): SystemTextBuilder {
-            return SystemTextBuilder()
-        }
 
-        fun buildSystemImage(): SystemImageBuilder {
-            return SystemImageBuilder()
-        }
-
-        fun buildSystemVideo(): SystemVideoBuilder {
-            return SystemVideoBuilder()
-        }
     }
 
     /**
