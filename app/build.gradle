@@ -59,7 +59,7 @@ dependencies {
     implementation project(path: ':yunishare')
     implementation project(path: ':wechat-share')
     implementation project(path: ':qq-share')
-    implementation project(path: ':system_share')
+    implementation project(path: ':system-share')
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

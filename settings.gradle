@@ -1,4 +1,4 @@
-include ':system_share'
+include ':system-share'
 include ':qq-share'
 include ':wechat-share'
 include ':yunishare'
