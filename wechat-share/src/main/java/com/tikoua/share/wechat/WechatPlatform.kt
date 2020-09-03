@@ -20,6 +20,7 @@ import com.tikoua.share.utils.FileUtils.copyToShareTemp
 import com.tikoua.share.utils.UrlUtils
 import com.tikoua.share.utils.checkEmpty
 import com.tikoua.share.utils.getIntOrNull
+import com.tikoua.share.utils.toChooser
 import com.tikoua.share.wechat.bean.WeChatShareRespData
 import com.tikoua.share.wechat.bean.WechatAccessTokenData
 import com.tikoua.share.wechat.bean.WechatAuthCodeRespData
@@ -40,10 +41,16 @@ class WechatPlatform : Platform {
     private var respMap = mutableMapOf<String, Bundle>()
     private var meta: WechatShareMeta? = null
     private var api: IWXAPI? = null
+    private var prepareOk = false
     override fun init(context: Context) {
         super.init(context)
-        val api = getApi(context)
+        prepareOk = checkPrepare(context)
+        if (!prepareOk) {
+            return
+        }
         val meta = getMeta(context)
+        val api = getApi(context)
+
         val registerApp = api.registerApp(meta.appid)
         log("registerApp: $registerApp")
         //建议动态监听微信启动广播进行注册到微信
@@ -79,6 +86,9 @@ class WechatPlatform : Platform {
         shareChannel: ShareChannel,
         shareParams: ShareParams
     ): ShareResult {
+        if (!prepareOk) {
+            return ShareResult(ShareEc.CannotFindMeta)
+        }
         val wxAppSupportAPI = getApi(activity).wxAppSupportAPI
         if (wxAppSupportAPI == 0) {
             return ShareResult(ShareEc.NotInstall)
@@ -115,6 +125,9 @@ class WechatPlatform : Platform {
     }
 
     override suspend fun auth(activity: Activity, channel: ShareChannel): AuthResult {
+        if (!prepareOk) {
+            return AuthResult(ShareEc.CannotFindMeta)
+        }
         val wxAppSupportAPI = getApi(activity).wxAppSupportAPI
         if (wxAppSupportAPI == 0) {
             return AuthResult(ShareEc.NotInstall)
@@ -202,7 +215,7 @@ class WechatPlatform : Platform {
             return ShareResult(ShareEc.PlatformUnSupport)
         }
         val intent = makeTextIntent(shareChannel, shareParams.text!!)
-        activity.startActivity(intent)
+        activity.startActivity(intent.toChooser(activity))
         return ShareResult(ShareEc.Success)
     }
 
@@ -356,11 +369,11 @@ class WechatPlatform : Platform {
     }
 
     private fun makeTextIntent(shareChannel: ShareChannel, text: String): Intent {
-        return Intent("android.intent.action.SEND").apply {
+        return Intent(Intent.ACTION_SEND).apply {
             makePackage(shareChannel)
             putExtra(Intent.EXTRA_TEXT, text)
             type = "text/plain"
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
     }
 
@@ -652,6 +665,15 @@ class WechatPlatform : Platform {
             )
         }
         return null
+    }
+
+    private fun checkPrepare(context: Context): Boolean {
+        return try {
+            getMeta(context)
+        } catch (error: Throwable) {
+            error.printStackTrace()
+            null
+        } != null
     }
 }
 

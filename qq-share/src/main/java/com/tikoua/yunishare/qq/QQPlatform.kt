@@ -18,6 +18,7 @@ import com.tikoua.share.model.*
 import com.tikoua.share.platform.Platform
 import com.tikoua.share.utils.checkEmpty
 import com.tikoua.share.utils.log
+import com.tikoua.share.utils.toChooser
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -31,8 +32,13 @@ import java.io.File
 class QQPlatform : Platform {
     private var meta: QQShareMeta? = null
     private var tencentClient: Tencent? = null
+    private var isPrepare = false
     override fun init(context: Context) {
         super.init(context)
+        val prepare = isPrepare(context)
+        if (!prepare) {
+            return
+        }
         tencentClient =
             Tencent.createInstance(
                 getMeta(context).appid,
@@ -50,6 +56,9 @@ class QQPlatform : Platform {
         shareChannel: ShareChannel,
         shareParams: ShareParams
     ): ShareResult {
+        if (!isPrepare) {
+            return ShareResult(ShareEc.CannotFindMeta)
+        }
         return tencentClient?.let {
             val qqInstalled = it.isQQInstalled(activity)
             if (!qqInstalled) {
@@ -77,9 +86,24 @@ class QQPlatform : Platform {
     }
 
     override suspend fun auth(activity: Activity, channel: ShareChannel): AuthResult {
+        if (!isPrepare) {
+            return AuthResult(ShareEc.CannotFindMeta)
+        }
         TODO("Not yet implemented")
     }
 
+    private fun isPrepare(context: Context): Boolean {
+        if (isPrepare) {
+            return true
+        }
+        return (try {
+            getMeta(context)
+        } catch (error: Throwable) {
+            null
+        } != null).apply {
+            isPrepare = this
+        }
+    }
 
     private fun getMeta(context: Context): QQShareMeta {
         var meta = meta
@@ -103,7 +127,7 @@ class QQPlatform : Platform {
             val intent = makeIntent()
             intent.putExtra(Intent.EXTRA_TEXT, text)
             intent.type = "text/plain"
-            activity.startActivity(intent)
+            activity.startActivity(intent.toChooser(activity))
             return ShareResult(ShareEc.Success)
         } else {
             val params = Bundle().apply {
@@ -139,7 +163,7 @@ class QQPlatform : Platform {
             doShare(activity, channel, params)
         } else {
             val intent = makeMediaIntent(activity, imagePath!!, "image/*")
-            activity.startActivity(intent)
+            activity.startActivity(intent.toChooser(activity))
             ShareResult(ShareEc.Success)
         }
 
@@ -169,7 +193,7 @@ class QQPlatform : Platform {
             doShare(activity, channel, params)
         } else {
             val intent = makeMediaIntent(activity, imagePath!!, "video/*")
-            activity.startActivity(intent)
+            activity.startActivity(intent.toChooser(activity))
             ShareResult(ShareEc.Success)
         }
     }
