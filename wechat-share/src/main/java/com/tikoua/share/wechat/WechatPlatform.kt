@@ -70,8 +70,10 @@ class WechatPlatform : Platform {
                             log("data: key: $it  value:${respData[it]}")
                         }
                     }
-                    val transaction = respData[WXConst.RespKeyTransaction] as String
-                    respMap[transaction] = respData
+                    val transaction = respData[WXConst.RespKeyTransaction] as String?
+                    if (!transaction.isNullOrEmpty()) {
+                        respMap[transaction] = respData
+                    }
                 }
             }
         }, IntentFilter(WXConst.ActionWXResp))
