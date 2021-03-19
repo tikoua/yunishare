@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.core.content.FileProvider
 import com.tencent.mm.opensdk.constants.Build
 import com.tencent.mm.opensdk.constants.ConstantsAPI
 import com.tencent.mm.opensdk.modelbase.BaseResp
@@ -371,7 +370,8 @@ class WechatPlatform : Platform {
         val uri: Uri
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            uri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileProvider", file)
+            //uri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileProvider", file)
+            uri = Uri.fromFile(file)
         } else {
             uri = Uri.fromFile(file)
         }
