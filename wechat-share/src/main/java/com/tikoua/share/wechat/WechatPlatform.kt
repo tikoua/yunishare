@@ -238,6 +238,12 @@ class WechatPlatform : Platform {
     ): ShareResult {
         val imagePath = shareParams.imagePath!!
         val tempPath = copyToShareTemp(activity, imagePath)
+        val exist = if (tempPath.isNullOrBlank()) {
+            null
+        } else {
+            File(tempPath).exists()
+        }
+        log("shareImage imagePath: $imagePath tempPath: $tempPath  exist: $exist")
         if (tempPath.isNullOrEmpty()) {
             return ShareResult(ShareEc.CopyFileFailed)
         }
@@ -369,7 +375,7 @@ class WechatPlatform : Platform {
         } else {
             uri = Uri.fromFile(file)
         }
-
+        log("uri  path:  ${uri.path}  string: $uri ")
         intent.type = type
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.makePackage(shareChannel)
