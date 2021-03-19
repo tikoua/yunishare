@@ -1,7 +1,6 @@
 package com.tikoua.share.utils
 
 import android.content.Context
-import java.io.File
 
 /**
  *   created by dcl
@@ -9,7 +8,7 @@ import java.io.File
  */
 object FileUtils {
     fun copyToShareTemp(context: Context, source: String): String? {
-        val dir = File(context.getExternalFilesDir(null), "share/temp")
+        /*val dir = File(context.getExternalFilesDir(null), "share/temp")
         if (!dir.exists()) {
             dir.mkdirs()
         } else {
@@ -37,6 +36,7 @@ object FileUtils {
         } catch (error: Throwable) {
             error.printStackTrace()
             null
-        }
+        }*/
+        return source
     }
 }
