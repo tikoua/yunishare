@@ -34,5 +34,5 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation project(path: ':yunishare')
-    implementation files('libs/open_sdk_r8353806_lite.jar')
+    implementation files('libs/open_sdk_3.5.2.152_r9e04b1c_lite.jar')
 }

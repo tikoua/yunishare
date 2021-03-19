@@ -256,6 +256,10 @@ class QQPlatform : Platform {
                 ec = ShareEc.Cancel
             }
 
+            override fun onWarning(p0: Int) {
+                log("onWarning: ${p0}", javaClass.simpleName)
+            }
+
             override fun onError(p0: UiError?) {
                 log("onError: ${p0}", javaClass.simpleName)
                 ec = ShareEc.PlatformError
