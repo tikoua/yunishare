@@ -364,13 +364,13 @@ class WechatPlatform : Platform {
         val intent = Intent(Intent.ACTION_SEND)
         val uri: Uri
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             uri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileProvider", file)
         } else {
             uri = Uri.fromFile(file)
         }
 
-        intent.setDataAndType(uri, type)
+        intent.type = type
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.makePackage(shareChannel)
         intent.putExtra(Intent.EXTRA_STREAM, uri)
