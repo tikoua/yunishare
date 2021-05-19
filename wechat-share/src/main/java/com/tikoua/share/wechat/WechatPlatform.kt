@@ -195,7 +195,7 @@ class WechatPlatform : Platform {
         val userName = shareParams.miniProgramUserName
         val wxMiniProgramObject = WXMiniProgramObject()
         wxMiniProgramObject.webpageUrl = pageUrl
-        wxMiniProgramObject.miniprogramType = WXMiniProgramObject.MINIPTOGRAM_TYPE_RELEASE
+        wxMiniProgramObject.miniprogramType = shareParams.miniProgramType
         wxMiniProgramObject.path = miniProgramPath
         wxMiniProgramObject.userName = userName
         val msg = WXMediaMessage()

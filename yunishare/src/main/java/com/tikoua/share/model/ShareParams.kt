@@ -25,7 +25,7 @@ class ShareParams {
     var miniProgramUserName: String? = null
     var miniProgramPath: String? = null
     var miniProgramWithShareTicket: Boolean = true
-    var miniProgramType: Int? = null
+    var miniProgramType: Int = 0
     var thumbData: ByteArray? = null
     var appName: String? = null
     var link: String? = null
