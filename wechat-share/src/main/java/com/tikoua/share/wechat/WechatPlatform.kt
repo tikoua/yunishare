@@ -84,9 +84,9 @@ class WechatPlatform : Platform {
     }
 
     override suspend fun share(
-            activity: Activity,
-            shareChannel: ShareChannel,
-            shareParams: ShareParams
+        activity: Activity,
+        shareChannel: ShareChannel,
+        shareParams: ShareParams
     ): ShareResult {
         if (!prepareOk) {
             return ShareResult(ShareEc.CannotFindMeta)
@@ -124,7 +124,8 @@ class WechatPlatform : Platform {
                     }
                     else -> {
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(activity, "分享失败: ${it.ec}  ${it.em} ", Toast.LENGTH_LONG).show()
+                            Toast.makeText(activity, "分享失败: ${it.ec}  ${it.em} ", Toast.LENGTH_LONG)
+                                .show()
                         }
                     }
                 }
@@ -187,8 +188,8 @@ class WechatPlatform : Platform {
      * 生成小程序分享的req
      */
     private fun getShareMiniProgramReq(
-            activity: Activity,
-            shareParams: ShareParams
+        activity: Activity,
+        shareParams: ShareParams
     ): SendMessageToWX.Req {
         val pageUrl = shareParams.miniProgramWebPageUrl
         val miniProgramPath = shareParams.miniProgramPath
@@ -213,27 +214,63 @@ class WechatPlatform : Platform {
     /**
      * 文字使用系统分享
      */
-    private fun shareText(
-            activity: Activity,
-            shareParams: ShareParams,
-            shareChannel: ShareChannel
+    private suspend fun shareText(
+        activity: Activity,
+        shareParams: ShareParams,
+        shareChannel: ShareChannel
     ): ShareResult {
         //不支持分享纯文本到朋友圈
-        if (shareChannel != ShareChannel.WechatFriend) {
-            return ShareResult(ShareEc.PlatformUnSupport)
+        if (shareChannel == ShareChannel.WechatMoment) {
+            val req = getShareTextReq(shareParams).apply {
+                scene = SendMessageToWX.Req.WXSceneTimeline
+            }
+            return shareBySdk(activity, req)
+        } else {
+            val intent = makeTextIntent(shareChannel, shareParams.text!!)
+            activity.startActivity(intent.toChooser(activity))
+            return ShareResult(ShareEc.Success)
         }
-        val intent = makeTextIntent(shareChannel, shareParams.text!!)
-        activity.startActivity(intent.toChooser(activity))
-        return ShareResult(ShareEc.Success)
     }
+
+    private fun getShareTextReq(
+        shareParams: ShareParams
+    ): SendMessageToWX.Req {
+        val text = shareParams.text
+        val wxTextObject = WXTextObject()
+        wxTextObject.text = text
+        val msg = WXMediaMessage()
+        msg.mediaObject = wxTextObject
+        msg.description = text
+        log("shareParams.thumbData: " + msg.thumbData?.size)
+        val req = SendMessageToWX.Req()
+        req.transaction = buildTransaction()
+        req.message = msg
+        return req
+    }
+    /*
+    * //初始化一个 WXTextObject 对象，填写分享的文本内容
+WXTextObject textObj = new WXTextObject();
+textObj.text = text;
+
+//用 WXTextObject 对象初始化一个 WXMediaMessage 对象
+WXMediaMessage msg = new WXMediaMessage();
+msg.mediaObject = textObj;
+msg.description = text;
+
+SendMessageToWX.Req req = new SendMessageToWX.Req();
+req.transaction = buildTransaction("text");
+req.message = msg;
+req.scene = mTargetScene;
+//调用api接口，发送数据到微信
+api.sendReq(req);*/
 
     /**
      * 图片使用系统分享
      */
     private fun shareImage(
-            activity: Activity,
-            shareParams: ShareParams,
-            shareChannel: ShareChannel
+        activity: Activity,
+        shareParams: ShareParams,
+        shareChannel: ShareChannel
     ): ShareResult {
         val imagePath = shareParams.imagePath!!
         val tempPath = copyToShareTemp(activity, imagePath)
@@ -249,9 +286,9 @@ class WechatPlatform : Platform {
      * 视频使用系统分享
      */
     private fun shareVideo(
-            activity: Activity,
-            shareParams: ShareParams,
-            shareChannel: ShareChannel
+        activity: Activity,
+        shareParams: ShareParams,
+        shareChannel: ShareChannel
     ): ShareResult {
         //不支持分享视频到朋友圈
         if (shareChannel != ShareChannel.WechatFriend) {
@@ -271,9 +308,9 @@ class WechatPlatform : Platform {
      *使用sdk分享小程序到会话
      */
     private suspend fun shareMiniProgram(
-            activity: Activity,
-            shareParams: ShareParams,
-            shareChannel: ShareChannel
+        activity: Activity,
+        shareParams: ShareParams,
+        shareChannel: ShareChannel
     ): ShareResult {
         //小程序不支持分享到朋友圈
         if (shareChannel != ShareChannel.WechatFriend) {
@@ -308,9 +345,9 @@ class WechatPlatform : Platform {
      * 分享链接
      */
     private suspend fun shareLink(
-            activity: Activity,
-            shareParams: ShareParams,
-            shareChannel: ShareChannel
+        activity: Activity,
+        shareParams: ShareParams,
+        shareChannel: ShareChannel
     ): ShareResult {
         val title = shareParams.title
         val desc = shareParams.desc
@@ -323,16 +360,16 @@ class WechatPlatform : Platform {
         val req = makeLinkReq(link!!, title, desc, thumbData)
         req.apply {
             this.scene =
-                    if (shareChannel == ShareChannel.WechatFriend) SendMessageToWX.Req.WXSceneSession else SendMessageToWX.Req.WXSceneTimeline
+                if (shareChannel == ShareChannel.WechatFriend) SendMessageToWX.Req.WXSceneSession else SendMessageToWX.Req.WXSceneTimeline
         }
         return shareBySdk(activity, req)
     }
 
     private fun makeLinkReq(
-            link: String,
-            title: String?,
-            desc: String?,
-            thumbData: ByteArray?
+        link: String,
+        title: String?,
+        desc: String?,
+        thumbData: ByteArray?
     ): SendMessageToWX.Req {
         val wxMiniProgramObject = WXWebpageObject()
         wxMiniProgramObject.webpageUrl = link
@@ -354,10 +391,10 @@ class WechatPlatform : Platform {
      * AddFavoriteUI        微信收藏
      */
     private fun makeWechatMediaIntent(
-            activity: Activity,
-            shareChannel: ShareChannel,
-            filePath: String,
-            type: String
+        activity: Activity,
+        shareChannel: ShareChannel,
+        filePath: String,
+        type: String
     ): Intent {
         val file = File(filePath)
         val intent = Intent(Intent.ACTION_SEND)
@@ -437,7 +474,7 @@ class WechatPlatform : Platform {
         return suspendCancellableCoroutine { resum ->
             val hashCode = activity.hashCode()
             val listener = object :
-                    ActivityLifecycleCallback() {
+                ActivityLifecycleCallback() {
                 override fun onActivityResumed(activity: Activity) {
                     if (hashCode == activity.hashCode()) {
                         activity.application.unregisterActivityLifecycleCallbacks(this)
@@ -597,7 +634,7 @@ class WechatPlatform : Platform {
         val appid = meta.appid
         val secret = meta.appSecret
         val url =
-                "https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${code}&grant_type=authorization_code"
+            "https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${code}&grant_type=authorization_code"
         val get = withContext(Dispatchers.IO) {
             UrlUtils.get(url)
         }
@@ -617,16 +654,16 @@ class WechatPlatform : Platform {
             val errcode = json.getIntOrNull("errcode")
             val errmsg = json.optString("errmsg")
             val tokenData =
-                    WechatAccessTokenData(
-                            accessToken,
-                            expiresIn,
-                            refreshToken,
-                            openid,
-                            scope,
-                            unionid,
-                            errcode,
-                            errmsg
-                    )
+                WechatAccessTokenData(
+                    accessToken,
+                    expiresIn,
+                    refreshToken,
+                    openid,
+                    scope,
+                    unionid,
+                    errcode,
+                    errmsg
+                )
             return tokenData
         }
         return null
@@ -637,7 +674,7 @@ class WechatPlatform : Platform {
      */
     private suspend fun getUserInfo(accessToken: String, openid: String): WechatUserInfo? {
         val url =
-                "https://api.weixin.qq.com/sns/userinfo?access_token=${accessToken}&openid=${openid}"
+            "https://api.weixin.qq.com/sns/userinfo?access_token=${accessToken}&openid=${openid}"
         val get = withContext(Dispatchers.IO) {
             UrlUtils.get(url)
         }
@@ -658,18 +695,18 @@ class WechatPlatform : Platform {
             val ec: Int? = json.optInt("errcode")
             val em: String? = json.optString("errmsg")
             return WechatUserInfo(
-                    respOpenid,
-                    nickname,
-                    sex,
-                    language,
-                    city,
-                    province,
-                    country,
-                    headimgurl,
-                    privilege,
-                    unionid,
-                    ec,
-                    em
+                respOpenid,
+                nickname,
+                sex,
+                language,
+                city,
+                province,
+                country,
+                headimgurl,
+                privilege,
+                unionid,
+                ec,
+                em
             )
         }
         return null
@@ -689,7 +726,7 @@ private fun Intent.makePackage(shareChannel: ShareChannel) {
     val pkg = "com.tencent.mm"
     if (true) {
         val cls =
-                "com.tencent.mm.ui.tools.${if (shareChannel == ShareChannel.WechatMoment) "ShareToTimeLineUI" else "ShareImgUI"}"
+            "com.tencent.mm.ui.tools.${if (shareChannel == ShareChannel.WechatMoment) "ShareToTimeLineUI" else "ShareImgUI"}"
         component = ComponentName(pkg, cls)
     } else {
         setPackage(pkg)

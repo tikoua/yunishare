@@ -126,6 +126,13 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btClear">
 
+            <Button
+                android:id="@+id/btWechatMomentText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="朋友圈纯文本"
+                android:textSize="8sp" />
 
             <Button
                 android:id="@+id/btWechatMomentImage"
@@ -142,6 +149,7 @@
                 android:layout_weight="1"
                 android:text="朋友圈链接"
                 android:textSize="8sp" />
+
 
         </LinearLayout>
 

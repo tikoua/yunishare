@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         btAuthWechat.setOnClickListener(this)
         btAuthQQ.setOnClickListener(this)
         btAuthAlipay.setOnClickListener(this)
+        btWechatMomentText.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -97,6 +98,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 btWechatFriendLink -> testShareWechatFriendLink(urlGet, linkTitle, linkDesc, imgLog)
                 btWechatMomentImage -> testShareWechatMomentImage(imageUrl)
                 btWechatMomentLink -> testShareWechatMomentLink(urlGet, linkTitle, linkDesc, imgLog)
+                btWechatMomentText -> testShareWechatText(text)
                 btQQText -> testShareQQText(text)
                 btQQLocalImage -> {
                     testShareQQImage(imageUrl)
@@ -288,6 +290,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             ShareChannel.WechatMoment,
             ShareParams.buildWechatLink().title(linkTitle).desc(linkDesc).thumbData(thumb)
                 .link(urlGet).build()
+        ).apply {
+            log("share result: $this")
+        }
+    }
+
+    private suspend fun testShareWechatText(text: String) {
+        YuniShare.share(
+            this,
+            ShareChannel.WechatMoment,
+            ShareParams.buildWechatText().text(text).build()
         ).apply {
             log("share result: $this")
         }
