@@ -28,11 +28,8 @@ class QQTextBuilder {
     }
 
     fun build(): ShareParams {
-        if (text.isNullOrEmpty()) {
+        if (text == null) {
             throw Exception("title can not be null")
-        }
-        if (targetUrl.isNullOrEmpty()) {
-            throw Exception("targetUrl can not be null")
         }
         return ShareParams().apply {
             this.type = ShareType.Text.type

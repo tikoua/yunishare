@@ -16,10 +16,7 @@ class WechatTextBuilder() {
     }
 
     fun build(): ShareParams {
-        val text = text
-        if (text.isNullOrEmpty()) {
-            throw Exception("text can not be null")
-        }
+        val text = text ?: throw Exception("text can not be null")
         return ShareParams().apply {
             this.type = ShareType.Text.type
             this.text = text

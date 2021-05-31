@@ -47,7 +47,7 @@ class QQImageBuilder {
             if (path.isNullOrEmpty() && url.isNullOrEmpty()) {
                 throw Exception("image is null")
             }
-            if (path.isNullOrEmpty() && title.isNullOrEmpty()) {
+            if (path.isNullOrEmpty() && title == null) {
                 throw Exception("分享远程链接时需要设置title")
             }
 

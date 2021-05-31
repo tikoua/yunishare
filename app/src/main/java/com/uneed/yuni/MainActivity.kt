@@ -380,8 +380,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         YuniShare.share(
             this,
             ShareChannel.QQZone,
-            ShareParams.buildQQText().text(text)
-                .targetUrl("https://www.baidu.com").build()
+            ShareParams.buildQQText().text(text).build()
         ).apply {
             log("share result: $this")
         }
