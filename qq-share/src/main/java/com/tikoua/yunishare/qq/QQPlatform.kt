@@ -66,8 +66,8 @@ class QQPlatform : Platform {
             }
             return@let when (shareParams.type) {
                 ShareType.Text.type -> {
-                    val text = shareParams.text!!
-                    sharePlainText(activity, shareChannel, text + System.currentTimeMillis())
+                    val text = shareParams.text ?: ""
+                    sharePlainText(activity, shareChannel, text)
                 }
                 ShareType.Image.type -> {
                     shareImage(activity, shareChannel, shareParams)
