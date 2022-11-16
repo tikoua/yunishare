@@ -16,6 +16,7 @@ import com.tikoua.share.model.ShareResult
 interface Platform {
     /**
      * 各自平台的初始化操作
+     *为了满足隐私政策的要求(用户同意隐私协议之后才能读写sdCard，微信的sdk初始化时会尝试读写sdCard),去掉了对jetpack startup库的使用,改为手动初始化
      */
     @CallSuper
     fun init(context: Context) {

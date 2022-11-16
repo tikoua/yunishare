@@ -12,15 +12,13 @@ import com.lcw.library.imagepicker.ImagePicker
 import com.tikoua.share.YuniShare
 import com.tikoua.share.model.ShareChannel
 import com.tikoua.share.model.ShareParams
+import com.tikoua.share.system.SystemPlatform
 import com.tikoua.share.system.buildSystemImage
 import com.tikoua.share.system.buildSystemText
 import com.tikoua.share.system.buildSystemVideo
 import com.tikoua.share.utils.log
 import com.tikoua.share.wechat.*
-import com.tikoua.yunishare.qq.buildQQImage
-import com.tikoua.yunishare.qq.buildQQLink
-import com.tikoua.yunishare.qq.buildQQText
-import com.tikoua.yunishare.qq.buildQQVideo
+import com.tikoua.yunishare.qq.*
 import com.uneed.yuni.utils.DownloadUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -46,6 +44,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             edt.setText(null)
             tvResult.text = null
         }
+
+        SystemPlatform().apply { this.init(this@MainActivity) }
+        WechatPlatform().apply { this.init(this@MainActivity) }
+        QQPlatform().apply { this.init(this@MainActivity) }
 
         btWechatFriendText.setOnClickListener(this)
         btWechatFriendImage.setOnClickListener(this)

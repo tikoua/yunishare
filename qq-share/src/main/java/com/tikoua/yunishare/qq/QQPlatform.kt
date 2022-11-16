@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.core.content.FileProvider
 import com.tencent.connect.share.QQShare
@@ -33,12 +34,17 @@ class QQPlatform : Platform {
     private var meta: QQShareMeta? = null
     private var tencentClient: Tencent? = null
     private var isPrepare = false
+
+    /**
+     * 在用户同意隐私协议之后调用
+     */
     override fun init(context: Context) {
         super.init(context)
         val prepare = isPrepare(context)
         if (!prepare) {
             return
         }
+        Tencent.setIsPermissionGranted(true,Build.MODEL)
         tencentClient =
             Tencent.createInstance(
                 getMeta(context).appid,

@@ -1,6 +1,7 @@
 package com.tikoua.share
 
 import android.app.Activity
+import android.content.Context
 import com.tikoua.share.model.*
 import com.tikoua.share.platform.Platform
 

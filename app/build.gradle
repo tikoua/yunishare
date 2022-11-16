@@ -13,18 +13,11 @@ android {
             storePassword 'uneedgame'
             v2SigningEnabled true
         }
-        debug {
-            keyAlias 'releasekey'
-            keyPassword 'uneedgame'
-            storeFile file('../../signture/releasekey.jks')
-            storePassword 'uneedgame'
-            v2SigningEnabled true
-        }
     }
     defaultConfig {
         applicationId "com.uneed.yuni"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
