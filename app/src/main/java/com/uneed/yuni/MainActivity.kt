@@ -537,7 +537,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             if (resultCode == Activity.RESULT_OK) {
                 data?.let {
                     val img = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES)
-                    pickFile = img.firstOrNull()
+                    pickFile = img?.firstOrNull()
                 }
             } else {
                 pickFile = ""

@@ -1,3 +1,10 @@
 <resources>
     <string name="与你">MyCoApplication</string>
+    <string name="wechat_appid">wxf91e095d0f920de6</string>
+    <string name="wechat_secret">2ade2372586f900e77f8e3d20f96af6e</string>
+    <string name="wechat_user_name">username</string>
+    <string name="wechat_mini_program_originid_album">gh_26fc36a531a8</string><!--小程序的原始id--><!--这是最开始的相册的小程序的id-->
+    <string name="qq_appid">1106523076</string>
+    <string name="qq_app_key">KEYGQ671M0Bm1mOJzpD</string>
+    <string name="tencent_auth_scheme">tencent1106523076</string>
 </resources>

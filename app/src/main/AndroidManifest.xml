@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.uneed.yuni">
 
+    <queries>
+        <package android:name="com.tencent.mm" />
+        <package android:name="com.tencent.mobileqq" />
+    </queries>
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
@@ -32,7 +36,6 @@
         <meta-data
             android:name="qq_app_key"
             android:value="@string/qq_app_key" />
-
 
         <activity android:name="com.uneed.yuni.MainActivity">
             <intent-filter>
